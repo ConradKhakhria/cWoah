@@ -1,0 +1,29 @@
+use io; // 'io' is a library containing io functions
+
+@(Integral T) // Generics are defined with function decorators 
+fn factorial(n: T) -> T {
+    ret: T = 1;
+
+    for i: int in 2 : n {
+        ret *= i;
+    }
+
+    return ret;
+}
+
+// Polymorphism is needed here as the Integer type is an unlimited-precision
+// integer defined as a struct (like with typedefs in C), meaning that normal
+// arithmetic operators won't work
+fn factorial(n: Integer) -> Integer {
+    ret: T = heap[1];   // As we're returning value ret, we want to allocate it on the heap
+
+    for i: int in 2 : n {
+        ret.mul(i);
+    }
+
+    return ret;
+}
+
+fn main() -> none {
+    io.printfln("{factorial(10)}"); // io.printfln formats and prints a string with a newline
+}

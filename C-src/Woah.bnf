@@ -1,0 +1,16 @@
+// Names
+FUNCTION_NAME ::= [a-zA-Z_][a-zA-Z0-9_]*
+METHOD_NAME   ::= [a-zA-Z_][a-zA-Z0-9_]*
+STRUCT_NAME   ::= [a-zA-Z][a-zA-Z0-9_]*
+MODULE_NAME   ::= [a-zA-Z][a-zA-Z_]*
+VAR_NAME      ::= [a-zA-Z_][a-zA-Z0-9_]*
+TYPE_NAME     ::= [A-Z][A-Za-z0-9_]*
+
+// Basic patterns
+assign        ::= var_or_attribute T_EQUALS expr T_SEMICOLON
+decl          ::= VAR_NAME T_COLON TYPE_NAME T_SEMICOLON
+decl_assign   ::= VAR_NAME T_COLON TYPE_NAME T_EQUALS expr T_SEMICOLON
+funcall       ::= 
+
+
+// Blocks

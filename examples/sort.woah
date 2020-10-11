@@ -1,0 +1,45 @@
+use data.Array;
+
+@(Ord T)
+fn quicksort(xs: Array<T>) -> Array<T> {
+    if xs.len() < 2 {
+        return xs;
+    }
+
+    lower: Array<T> = stack[];
+    upper: Array<T> = stack[];
+
+    for i: int in 1 : xs.len() {
+        if xs[i] < xs[0] {
+            lower.append(xs[i]);
+        } else {
+            upper.append(xs[i]);
+        }
+    }
+
+    // Chained methods are entirely legal as long as the method returns the value
+    // which is transformed by the next method.
+    return quicksort(lower).append(xs[0]).concat(upper);
+}
+
+@(Ord T)
+fn bubblesort(xs: Array<T>) -> Array<T> {
+    sorted: bool = false;
+    swap: T;
+
+    while not sorted {
+        sorted = true;
+
+        for i: int in 1 : xs.len() {
+            if xs[i - 1] > xs[i] {
+                sorted = false;
+
+                swap      = xs[i - 1];
+                xs[i - 1] = xs[i];
+                xs[i]     = swap;
+            }
+        }
+    }
+
+    return xs;
+}

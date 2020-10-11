@@ -1,0 +1,60 @@
+module Complex {
+    Complex (*)
+}
+
+use io;
+use math;
+
+@(Number T)
+type Complex<T> = &struct {
+    real: T,
+    imag: T
+}
+
+// Types defined with a type constructor (as above) are the only things in woah
+// which can have methods, which are useful for scoping as well as for generally
+// giving the language neater syntax. They are defined as follows:
+
+
+// Every type must have an .init() method to initialise all its values
+
+fn Complex<T>.init() -> Complex<T> {
+    self.real = 0;
+    self.imag = 0;
+
+    return self;
+}
+
+fn Complex<T>.real() -> T {
+    return self.real; // self is of course used to reference the object which the
+                      // method was called for.
+}
+
+// Setters and getters like these are necessary because the internal values of a type
+// defined with a struct are always considered private
+
+fn Complex<T>.imag() -> T {
+    return self.imag;
+}
+
+@(Number N)
+fn Complex<T>.add(z: Complex<N>) -> Complex<T> {
+    self.real += z.real();
+    self.imag += z.imag();
+
+    return self;
+}
+
+fn Complex<T>.mod() -> float {
+    return math.sqrt(self.real**2 + self.imag**2);
+}
+
+// Any type that wants to be able to be 'printf'ed has to implement .fmt()
+
+fn Complex<T>.fmt() -> String {
+    if self.imag() < 0 {
+        return "{} - {}".fmt(self.real, -self.imag);
+    } else {
+        return "{} + {}".fmt(self.real, self.imag);
+    }
+}

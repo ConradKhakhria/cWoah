@@ -1,0 +1,108 @@
+use io;
+
+// The small typeclasss consists of anything whose size is less than or equal to
+// the word size of the machine. This means integers (i8, i16, i32 etc), char,
+// and pointers. The motivation for this is so that structs that might get allocated
+// on the stack don't end up huge.
+
+@(Small T)
+struct LinkedListNode<T> {
+    next: &struct LinkedListNode,
+    val: T
+}
+
+@(Small T)
+type LinkedList<T> = &struct {
+    first: &struct LinkedListNode<T>,
+    last:  &struct LinkedListNode<T>,
+    len:   int
+}
+
+fn LinkedList<T>.init() -> LinkedList<T> {
+    self.first = null;
+    self.last  = null;
+    self.len   = 0;
+
+    return self;
+}
+
+fn LinkedList<T>.len() -> int {
+    return self.len;
+}
+
+// the 'heap[]' macro allocates the size of a &struct LinkedListNode
+fn LinkedList<T>.append(val: T) -> LinkedList<T> {
+    newNode: &struct LinkedListNode = heap[];
+
+    newNode->next = null;
+    newNode->val  = val;
+
+    self.last.next = newNode;
+    self.len      += 1
+
+    return self;
+}
+
+fn LinkedList<T>.cons(val: T) -> LinkedList<T> {
+    newNode: &struct LinkedListNode = heap[];
+
+    newNode->next = self.first;
+    newNode->val  = val;
+
+    self.first    = newNode;
+    self.len     += 1;
+
+    return self;
+}
+
+fn LinkedList<T>.insert(val: T, index: int) -> LinkedList<T> {
+    if index < 0 or self.len <= index {
+        raise["Index out of range"]; // I'm not sure how I'm go implement the error handling
+    }                                // system but I promise there will be one.
+
+    currentNode: &struct LinkedListNode = self.first;
+
+    while index > 1 {
+        currentNode = currentNode->next;
+        index -= 1;
+    }
+
+    newNode: &struct LinkedListNode = heap[];
+    newNode->next = currentNode->next;
+    newNode->val  = val
+
+    currentNode->next = newNode;
+
+    self.len += 1;
+
+    return self;
+}
+
+fn LinkedList<T>.get(index: int) -> T {
+    if index < 0 or self.len <= index {
+        raise["Index out of range"];
+    }
+    
+    currentNode: &struct LinkedListNode = self.first;
+
+    while index > 0 {
+        currentNode = currentNode->next;
+        index -= 1;
+    }
+
+    return currentNode->val;
+}
+
+fn LinkedList<T>.fmt() -> String {
+    str: String = heap[].init("[");
+    currentNode: &struct LinkedListNode = self.first;
+
+    while currentNode->next != null {
+        str.concat("{}, ".fmt(currentNode.val));
+        currentNode = currentNode->next;
+    }
+
+    str.concat("{}]".fmt(currentNode.val));
+
+    return str;
+}
