@@ -16,9 +16,7 @@ typedef struct Array {
 } * Array;
 
 Array makeArray();
-
 void arrayAdd(Array array, void *val);
-
 void * arrayIndex(Array array, int index);
 
 // Token structure (for lexer)
