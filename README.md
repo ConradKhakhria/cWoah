@@ -1,12 +1,14 @@
 # Woah
 ## A compiler for the Woah language
 
-### Current state of the project
-The Woah language is the most complex project I have ever worked on, leading me through
-repeated changes in implementation language choice as well as frequent syntax overhauls.
-At this point I'm not going to host any syntax documentation because it is likely to
-change between now and the project finally being done. Instead I've submitted an 'examples'
-directory containing samples of the language using features which I've decided will be kept
-as well as a 'C-src' directory containing the C code I wrote up to the point where I realised
-this project would be much more effectively written in Haskell.
+### Intro
+I am designing the Woah language to use all of my favourite features
+from all of my favourite languages with the aim of making a fast,
+syntactically consistent and, above all, useful systems language. So
+far I have a fully functional lexer and now the recursive descent parser
+is on its way.
 
+### Syntax
+I haven't decided entirely on every element of the syntax but to get a general
+feel for what the language is about there are some sample programs in the
+examples/ directory
