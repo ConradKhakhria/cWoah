@@ -93,6 +93,10 @@ Array generate_tokens(char *source, int source_len)
                     i++;
                 }
 
+                if (tok->token_type == T_SWAP) {
+                    i++;
+                }
+
                 break;
             case '>':
                 if ((tok->token_type = gt_type(source, i - 1)) == T_GEQ || tok->token_type == T_SHR) {
@@ -241,6 +245,10 @@ int lt_type(char *source, int index)
             return T_SHL;
         case '=':
             return T_LEQ;
+        case '-':
+            if (source[index + 2] == '>') {
+                return T_SWAP;
+            }
         default:
             return T_LT;
     }

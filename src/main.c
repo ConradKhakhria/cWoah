@@ -3,15 +3,40 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "constants.h"
 #include "datastructures.h"
 #include "lexer.h"
 
-int main() {
+char *get_filename(int argc, char *argv[])
+{
+    for (int arg_index = 0; arg_index < argc; arg_index++) {
+        int end_index  = 0;
+
+        while (argv[arg_index][end_index] != '\x00') {
+            end_index++;
+        }
+
+        if (!strncmp(".woah", &argv[arg_index][end_index - 5], 5)) {
+            return argv[arg_index];
+        }
+    }
+
+    fprintf(stderr, "Woah: error: no files supplied\n");
+    exit(1);
+}
+
+int main(int argc, char *argv[]) {
     // Placeholder for a real frontent
-    FILE *fp  = fopen("../examples/factorial.woah", "r");
+    if (argc < 2) {
+        fprintf(stderr, "Woah: error: no files supplied.\n");
+        exit(1);
+    }
+
+    char *filename = get_filename(argc, argv);
     char *buf = calloc(0x10000, sizeof(char));
+    FILE *fp  = fopen(filename, "r");
     char c;
     int buf_i = 0;
 

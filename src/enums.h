@@ -40,6 +40,7 @@ enum TokenType {
     T_INC,      // ++
     T_DEC,      // --
     T_ARROW,    // ->
+    T_SWAP,     // <-> (swap operator)
 
     // Numbers
     T_B2NUM,
