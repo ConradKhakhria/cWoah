@@ -90,11 +90,9 @@ Array generate_tokens(char *source, int source_len)
                 break;
             case '<':
                 if ((tok->token_type = lt_type(source, i - 1)) == T_LEQ || tok->token_type == T_SHL) {
-                    i++;
-                }
-
-                if (tok->token_type == T_SWAP) {
-                    i++;
+                    i += 1;
+                } else if (tok->token_type == T_SWAP) {
+                    i += 2;
                 }
 
                 break;

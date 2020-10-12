@@ -26,3 +26,9 @@ struct Token {
     int end_i;
     int line_no;
 };
+
+// Parse tree
+
+typedef struct ParseNode {
+    
+} * ParseNode;
