@@ -4,10 +4,12 @@ module PrimeSieve (    // Define a module to export
 
 @(Integral T)
 fn sieve(lim: T) -> Array<T> {
-    bools: bool[]    = stack[lim];  // We're not returning bools so we can allocate it on the stack.
-    primes: Array<T> = heap[0];     // stack[] and heap[] are used for any types where allocation is needed
-                                    // (such as structs), so it gets the type (and consequently size) to
-                                    // allocate from the type annotation (in this case, Array<T>)
+    bools: bool[]    = stack[lim];      // We're not returning bools so we can
+    primes: Array<T> = heap[0].init();  // allocate it on the stack.
+    
+    // stack[] and heap[] are used for any types where allocation is needed
+    // (such as structs), so it gets the type (and consequently size) to
+    // allocate from the type annotation (in this case, Array<T>)
 
     for i: int in 2 : lim {
         bools[i] = true;
@@ -25,3 +27,5 @@ fn sieve(lim: T) -> Array<T> {
 
     return primes;
 }
+
+

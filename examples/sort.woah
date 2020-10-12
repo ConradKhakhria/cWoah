@@ -6,8 +6,8 @@ fn quicksort(xs: Array<T>) -> Array<T> {
         return xs;
     }
 
-    lower: Array<T> = stack[];
-    upper: Array<T> = stack[];
+    lower: Array<T> = stack[].init();
+    upper: Array<T> = stack[].init();
 
     for i: int in 1 : xs.len() {
         if xs[i] < xs[0] {
@@ -25,7 +25,6 @@ fn quicksort(xs: Array<T>) -> Array<T> {
 @(Ord T)
 fn bubblesort(xs: Array<T>) -> Array<T> {
     sorted: bool = false;
-    swap: T;
 
     while not sorted {
         sorted = true;
@@ -33,10 +32,7 @@ fn bubblesort(xs: Array<T>) -> Array<T> {
         for i: int in 1 : xs.len() {
             if xs[i - 1] > xs[i] {
                 sorted = false;
-
-                swap      = xs[i - 1];
-                xs[i - 1] = xs[i];
-                xs[i]     = swap;
+                xs[i - 1] <-> xs[i]; // swap operator
             }
         }
     }

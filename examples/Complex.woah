@@ -18,9 +18,9 @@ type Complex<T> = &struct {
 
 // Every type must have an .init() method to initialise all its values
 
-fn Complex<T>.init() -> Complex<T> {
-    self.real = 0;
-    self.imag = 0;
+fn Complex<T>.init(r: T, i: T) -> Complex<T> {
+    self.real = r;
+    self.imag = i;
 
     return self;
 }
