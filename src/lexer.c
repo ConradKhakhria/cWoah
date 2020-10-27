@@ -1,9 +1,9 @@
 #include "lexer.h"
 
-#define WORD_MATCH(STR, LEN, TOK)                   \
+#define WORD_MATCH(STR, LEN, TOK)                        \
     else if (strncmp(STR, &source[tok->start_i], LEN)) { \
-                tok->token_type = TOK;              \
-    }                                               \
+                tok->token_type = TOK;                   \
+    }                                                    \
 
 Array generate_tokens(char *source, int source_len)
 {
