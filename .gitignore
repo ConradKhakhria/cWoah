@@ -1,3 +1,7 @@
 ignore-src
 Woah.bnf
 woah
+src/Python
+src/Python/*
+src/Rust
+src/Rust/*
