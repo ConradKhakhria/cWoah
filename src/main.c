@@ -49,6 +49,7 @@ int get_file_contents(char *filename, char *contents_buffer)
     return i;
 }
 
+// Prints a string between start and end
 void printn(char *array, int start, int end)
 {
     for (; start < end; start++) {
