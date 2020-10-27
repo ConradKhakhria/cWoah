@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "constants.h"
-#include "datastructures.h"
+#include "datastructures/datastructures.h"
 #include "enums.h"
 
 Array generate_tokens(char *source, int source_len);

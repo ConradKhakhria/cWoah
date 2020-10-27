@@ -6,7 +6,8 @@
 #include <string.h>
 
 #include "constants.h"
-#include "datastructures.h"
+#include "enums.h"
+#include "datastructures/datastructures.h"
 #include "lexer.h"
 
 char *get_filename(int argc, char *argv[])
@@ -27,41 +28,53 @@ char *get_filename(int argc, char *argv[])
     exit(1);
 }
 
-int main(int argc, char *argv[]) {
-    // Placeholder for a real frontent
-    if (argc < 2) {
-        fprintf(stderr, "Woah: error: no files supplied.\n");
-        exit(1);
-    }
-
-    char *filename = get_filename(argc, argv);
-    char *buf = calloc(0x10000, sizeof(char));
-    FILE *fp  = fopen(filename, "r");
+int get_file_contents(char *filename, char *contents_buffer)
+{
+    FILE *fp = fopen(filename, "r");
     char c;
-    int buf_i = 0;
+    int i = 0;
 
     if (fp == NULL) {
         perror("Woah: error opening file");
         exit(errno);
-    } else if (buf == NULL) {
+    } else if (contents_buffer == NULL) {
         perror("Woah: malloc error");
         exit(errno);
     }
 
     while ((c = getc(fp)) != EOF) {
-        buf[buf_i++] = c;
+        contents_buffer[i++] = c;
     }
 
-    Array tokens = generate_tokens(buf, buf_i);
+    return i;
+}
+
+void printn(char *array, int start, int end)
+{
+    for (; start < end; start++) {
+        printf("%c", array[start]);
+    }
+
+    printf("'\n");
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        fprintf(stderr, "Woah: error: no files supplied.\n");
+        exit(1);
+    }
+
+    char *filename          = get_filename(argc, argv);
+    char *contents_buffer   = calloc(0x10000, sizeof(char));
+    int contents_buffer_len = get_file_contents(filename, contents_buffer);
+
+    Array tokens = generate_tokens(contents_buffer, contents_buffer_len);
+    struct Token *tok;
 
     for (int i = 0; i < tokens->index; i++) {
-        struct Token *tok = tokens->buffer[i];
-        printf("Line number = %d, string = '", tok->line_no);
-
-        for (int j = tok->start_i; j < tok->end_i; j++) {
-            printf("%c", buf[j]);
-        }
-
-        printf("', token code = %d\n", tok->token_type);
+        tok = tokens->buffer[i];
+        printf("token type = %d, str = '", tok->token_type);
+        printn(contents_buffer, tok->start_i, tok->end_i);
     }
+
 }

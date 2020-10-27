@@ -5,8 +5,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "constants.h"
-#include "enums.h"
+#include "../constants.h"
+#include "../enums.h"
+
+/* Generic datastructures */
 
 // Growable array
 typedef struct Array {
@@ -19,7 +21,9 @@ Array makeArray();
 void arrayAdd(Array array, void *val);
 void * arrayIndex(Array array, int index);
 
-// Token structure (for lexer)
+
+/* Lexing and parsing */
+
 struct Token {
     int token_type;
     int start_i;
@@ -27,8 +31,20 @@ struct Token {
     int line_no;
 };
 
-// Parse tree
+// TODO
+struct WType {
 
-typedef struct ParseNode {
+};
+
+struct WTypedef {
     
-} * ParseNode;
+};
+
+struct WFunction {
+    char *function_name;
+    struct WTypedef *parent_type;
+    char **arg_names;
+    struct WType *arg_types;
+    struct WType ret_type;
+    struct WParseExpr *body;
+};

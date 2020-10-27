@@ -1,5 +1,10 @@
 #include "lexer.h"
 
+#define WORD_MATCH(STR, LEN, TOK)                   \
+    else if (strncmp(STR, &source[tok->start_i], LEN)) { \
+                tok->token_type = TOK;              \
+    }                                               \
+
 Array generate_tokens(char *source, int source_len)
 {
     Array tokens = makeArray(TOKENS_ARRAY_SIZE);
@@ -157,28 +162,28 @@ Array generate_tokens(char *source, int source_len)
                 i++;
             }
 
-            // Check if the word is a keyword
-            if (strncmp("fn ", &source[tok->start_i], 3)) {
-                tok->token_type = T_FN;
-            } else if (strncmp("struct ", &source[tok->start_i], 7)) {
-                tok->token_type = T_STRUCT;
-            } else if (strncmp("use ", &source[tok->start_i], 4)) {
-                tok->token_type = T_USE;
-            } else if (strncmp("while ", &source[tok->start_i], 6)) {
-                tok->token_type = T_WHILE;
-            } else if (strncmp("for ", &source[tok->start_i], 4)) {
-                tok->token_type = T_WHILE;
-            } else if (strncmp("if ", &source[tok->start_i], 3)) {
-                tok->token_type = T_IF;
-            } else if (strncmp("elif ", &source[tok->start_i], 5)) {
-                tok->token_type = T_ELIF;
-            } else if (strncmp("else ", &source[tok->start_i], 5)) {
-                tok->token_type = T_ELSE;
-            } else if (strncmp("in ", &source[tok->start_i], 3)) {
-                tok->token_type = T_IN;
-            } else {
-                tok->token_type = T_NAME;
-            }
+            if (strncmp("fn ", &source[tok->start_i], 3))
+                tok->token_type    =  T_FN;
+            WORD_MATCH("struct ",  7, T_STRUCT)
+            WORD_MATCH("use ",     4, T_USE)
+            WORD_MATCH("macro ",   6, T_MACRO)
+            WORD_MATCH("globals ", 8, T_GLOBALS)
+            WORD_MATCH("while ",   6, T_WHILE)
+            WORD_MATCH("for ",     4, T_FOR)
+            WORD_MATCH("if ",      3, T_IF)
+            WORD_MATCH("elif ",    5, T_ELIF)
+            WORD_MATCH("else ",    5, T_ELSE)
+            WORD_MATCH("in ",      3, T_IN)
+            WORD_MATCH("self ",    5, T_SELF)
+            WORD_MATCH("return ",  7, T_RETURN)
+            WORD_MATCH("stack ",   6, T_STACK)
+            WORD_MATCH("heap ",    5, T_HEAP)
+            WORD_MATCH("and ",     4, T_AND)
+            WORD_MATCH("or ",      3, T_OR)
+            WORD_MATCH("xor ",     4, T_XOR)
+            WORD_MATCH("not ",     4, T_NOT)
+            else
+                tok->token_type    =  T_NAME;
         }
 
         // Testing if the token is a numeric literal
