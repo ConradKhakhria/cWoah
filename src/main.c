@@ -6,9 +6,12 @@
 #include <string.h>
 
 #include "constants.h"
-#include "enums.h"
 #include "datastructures/datastructures.h"
+#include "enums.h"
 #include "lexer.h"
+#include "parse/parse.h"
+
+extern char *content_buffer;
 
 char *get_filename(int argc, char *argv[])
 {
@@ -65,17 +68,22 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    char *filename          = get_filename(argc, argv);
-    char *contents_buffer   = calloc(0x10000, sizeof(char));
-    int contents_buffer_len = get_file_contents(filename, contents_buffer);
+    char *filename = get_filename(argc, argv);
+    content_buffer = calloc(0x10000, sizeof(char));
+    int contents_buffer_len = get_file_contents(filename, content_buffer);
 
-    Array tokens = generate_tokens(contents_buffer, contents_buffer_len);
-    struct Token *tok;
+    Array tokens  = generate_tokens(content_buffer, contents_buffer_len);
+
+    /* Blocks defined in the file and in imports */
+    Array types   = make_array(); // List of types / typedefs
+    Array structs = make_array(); // List of all structs
+    Array funcs   = make_array(); // List of all functions
+    Array module  = make_array(); // In case of module declaration
 
     for (int i = 0; i < tokens->index; i++) {
-        tok = tokens->buffer[i];
-        printf("token type = %d, str = '", tok->token_type);
-        printn(contents_buffer, tok->start_i, tok->end_i);
-    }
+        struct Token *tok = tokens->buffer[i];
 
+        printf("line = %d, column = %d, string = '", tok->line_no, tok->col_no);
+        printn(content_buffer, tok->start_i, tok->end_i);
+    }
 }
