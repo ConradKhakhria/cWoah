@@ -69,5 +69,14 @@ enum TokenType {
     T_AND,
     T_OR,
     T_XOR,
+    T_TRUE,
+    T_FALSE,
     T_NOT,
+};
+
+enum TypeForm {
+    TF_LIST,        // T[]
+    TF_POINTER,     // &T
+    TF_PARAMETRIC,  // T<x, y, ...>
+    TF_ATOMIC,      // T
 };
