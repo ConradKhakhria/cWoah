@@ -1,8 +1,8 @@
 // This file will generate the following error:
-//  Woah: Syntax error: unknown syntax
-//    |
-//  4 |    a: i64 = #unrecognisedpattern;
-//    |         
+// Woah: Syntax error: unknown syntax
+//     |
+//  10 |    a: i64 = #unrecognisedpattern;
+//     |              ^
 
 use io;
 
