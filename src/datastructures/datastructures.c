@@ -1,7 +1,7 @@
 #include "datastructures.h"
 
 // Growable array
-Array makeArray(size_t buffer_size)
+Array make_array(size_t buffer_size)
 {
     Array retarray = calloc(1, sizeof(struct Array));
 
@@ -17,7 +17,7 @@ Array makeArray(size_t buffer_size)
     return retarray;
 }
 
-void arrayAdd(Array array,  void *val)
+void array_add(Array array,  void *val)
 {
     if (array->index >= array->buffer_len) {
         void **new_buffer = realloc(array->buffer, array->buffer_len + ARRAY_BUFFER_GROW);
@@ -34,7 +34,7 @@ void arrayAdd(Array array,  void *val)
     array->buffer[array->index++] = val;
 }
 
-void *arrayIndex(Array array, int index)
+void *array_index(Array array, int index)
 {
     if (index < 0 || array->index < index) {
         fprintf(stderr, "Woah: index %d out of range [0, %d]\n", index, array->index);
@@ -42,4 +42,15 @@ void *arrayIndex(Array array, int index)
     } else {
         return array->buffer[index];
     }
+}
+
+bool array_contains_string(Array array, char *string, size_t len)
+{
+    for (int i = 0; i < array->index; i++) {
+        if (!strncmp(array->buffer[i], string, len)) {
+            return true;
+        }
+    }
+
+    return false;
 }
