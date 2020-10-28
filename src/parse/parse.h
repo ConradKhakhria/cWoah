@@ -7,4 +7,8 @@
 #include "../lexer.h"
 
 
-int traverse_block(struct Token *prog[], int start, int end);
+int traverse_block(Array prog, int start, int open, int close);
+
+Array collect_blocks(Array tokens);
+
+struct WType *parse_type(Array tokens_array, int start, int end);
