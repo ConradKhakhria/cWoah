@@ -10,6 +10,7 @@
 #include "constants.h"
 #include "datastructures/datastructures.h"
 #include "enums.h"
+#include "woah_error.h"
 
 Array generate_tokens(char *source, int source_len);
 

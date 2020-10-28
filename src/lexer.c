@@ -7,8 +7,8 @@
 
 Array generate_tokens(char *source, int source_len)
 {
-    Array tokens = makeArray(TOKENS_ARRAY_SIZE);
-    int i = 0, line_no = 1;
+    Array tokens = make_array(TOKENS_ARRAY_SIZE);
+    int i = 0, line_no = 1, col_no = 1;
 
     // Iterate on each new token
     while (i < source_len) {
@@ -18,6 +18,7 @@ Array generate_tokens(char *source, int source_len)
         // Skip all whitespace and comments
         if (source[i] == ' ') {
             i++;
+            col_no++;
             continue;
         } else if (source[i] == '/' && source[i + 1] == '*') {
             i += 2;
@@ -25,6 +26,7 @@ Array generate_tokens(char *source, int source_len)
             while (!(source[i - 1] == '*' && source[i] == '/')) {
                 if (source[i++] == '\n') {
                     line_no++;
+                    col_no = 1;
                 }
             }
 
@@ -38,12 +40,14 @@ Array generate_tokens(char *source, int source_len)
         }
 
         tok->start_i = i++;
+        tok->col_no  = col_no;
 
         // Go through single character tokens
         switch (source[i - 1]) {
             case '\n':
                 tok->token_type = T_NEWLINE;
                 line_no++;
+                col_no = 0;
                 break;
             case '(':
                 tok->token_type = T_OPEN_BRKT;
@@ -61,7 +65,7 @@ Array generate_tokens(char *source, int source_len)
                 tok->token_type = T_OPEN_CURLY_BRKT;
                 break;
             case '}':
-                tok->token_type = T_CLOSE_SQ_BRKT;
+                tok->token_type = T_CLOSE_CURLY_BRKT;
                 break;
             case ',':
                 tok->token_type = T_COMMA;
@@ -181,6 +185,8 @@ Array generate_tokens(char *source, int source_len)
             WORD_MATCH("and ",     4, T_AND)
             WORD_MATCH("or ",      3, T_OR)
             WORD_MATCH("xor ",     4, T_XOR)
+            WORD_MATCH("true ",    5, T_TRUE)
+            WORD_MATCH("false ",   6, T_FALSE)
             WORD_MATCH("not ",     4, T_NOT)
             else
                 tok->token_type    =  T_NAME;
@@ -210,21 +216,15 @@ Array generate_tokens(char *source, int source_len)
                     i++;
                 }
             } else {
-                fprintf(stderr, "Woah: Syntax error on line %d:", line_no);
-                fprintf(stderr, "Unknown syntax '");
-
-                for (int j = tok->start_i; source[j] != '\n'; j++) {
-                    fprintf(stderr, "%c", source[j]);
-                }
-
-                fprintf(stderr, "'\n");
-                exit(SYNTAX_ERROR);
+                fprintf(stderr, "Woah: Syntax error: unknown syntax\n");
+                woah_syntax_error(line_no, col_no);
             }
         }
 
         tok->end_i   = i;
         tok->line_no = line_no;
-        arrayAdd(tokens, tok);
+        col_no += tok->end_i - tok->start_i;
+        array_add(tokens, tok);
     }
 
     return tokens;
