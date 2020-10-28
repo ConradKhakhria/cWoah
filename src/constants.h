@@ -8,3 +8,5 @@
 // Error exit codes
 #define INDEX_ERROR  -1
 #define SYNTAX_ERROR -2
+
+char *content_buffer;
