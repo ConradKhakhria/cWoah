@@ -31,8 +31,6 @@ enum TokenType {
     T_INEQ, // !=
     T_LEQ,  // <=
     T_GEQ,  // >=
-    T_SHL,  // <<
-    T_SHR,  // >>
     T_ADD_ASSIGN,
     T_SUB_ASSIGN,
     T_MUL_ASSIGN,
@@ -46,6 +44,7 @@ enum TokenType {
     T_B2NUM,
     T_B10NUM,
     T_B16NUM,
+    T_FLOAT,
 
     // Names
     T_NAME,
@@ -78,5 +77,6 @@ enum TypeForm {
     TF_LIST,        // T[]
     TF_POINTER,     // &T
     TF_PARAMETRIC,  // T<x, y, ...>
+    TF_STRUCT,      // struct foo
     TF_ATOMIC,      // T
 };
