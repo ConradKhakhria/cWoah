@@ -7,7 +7,7 @@
 #include "../lexer.h"
 
 
-int traverse_block(Array prog, int start, int open, int close);
+int traverse_block(Array prog, int start, int end, int open, int close);
 
 Array collect_blocks(Array tokens);
 
