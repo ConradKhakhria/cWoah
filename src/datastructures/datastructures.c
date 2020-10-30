@@ -5,14 +5,13 @@ Array make_array(size_t buffer_size)
 {
     Array retarray = calloc(1, sizeof(struct Array));
 
+    MALLOCERR(retarray, 2);
+
     retarray->buffer     = calloc(ARRAY_BUFFER_SIZE, sizeof(void *));
     retarray->buffer_len = ARRAY_BUFFER_SIZE;
     retarray->index      = 0;
 
-    if (retarray == NULL || retarray->buffer == NULL) {
-        perror("Woah: malloc error");
-        exit(errno);
-    }
+    MALLOCERR(retarray->buffer, 3);
 
     return retarray;
 }
@@ -22,10 +21,7 @@ void array_add(Array array,  void *val)
     if (array->index >= array->buffer_len) {
         void **new_buffer = realloc(array->buffer, array->buffer_len + ARRAY_BUFFER_GROW);
 
-        if (new_buffer == NULL) {
-            perror("Woah: realloc error");
-            exit(errno);
-        }
+        MALLOCERR(new_buffer, 4);
 
         free(array->buffer);
         array->buffer = new_buffer;
