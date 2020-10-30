@@ -11,7 +11,7 @@
 #include "lexer.h"
 #include "parse/parse.h"
 
-extern char *content_buffer;
+extern char *program_source_buffer;
 extern char *filename;
 
 char *get_filename(int argc, char *argv[])
@@ -32,7 +32,8 @@ char *get_filename(int argc, char *argv[])
     exit(1);
 }
 
-int get_file_contents(char *filename, char *contents_buffer)
+// Reads the contents of filename into program_source_buffer
+inline int get_file_contents()
 {
     FILE *fp = fopen(filename, "r");
     char c;
@@ -44,7 +45,7 @@ int get_file_contents(char *filename, char *contents_buffer)
     }
 
     while ((c = getc(fp)) != EOF) {
-        contents_buffer[i++] = c;
+        program_source_buffer[i++] = c;
     }
 
     return i;
@@ -66,14 +67,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    filename       = get_filename(argc, argv);
-    content_buffer = calloc(0x10000, sizeof(char));
+    filename              = get_filename(argc, argv);
+    program_source_buffer = calloc(0x10000, sizeof(char));
 
-    MALLOCERR(content_buffer, 1);
+    MALLOCERR(program_source_buffer, 1);
 
-    int contents_buffer_len = get_file_contents(filename, content_buffer);
+    int contents_buffer_len = get_file_contents();
 
-    Array tokens  = generate_tokens(content_buffer, contents_buffer_len);
+    Array tokens  = generate_tokens(program_source_buffer, contents_buffer_len);
 
     /* Blocks defined in the file and in imports */
     Array types   = make_array(); // List of types / typedefs
@@ -87,7 +88,7 @@ int main(int argc, char *argv[]) {
         struct Token *tok = tokens->buffer[i];
 
         printf("line = %d, column = %d, token_type = %d, string = '", tok->line_no, tok->col_no, tok->token_type);
-        printn(content_buffer, tok->start_i, tok->end_i);
+        printn(program_source_buffer, tok->start_i, tok->end_i);
 
         if (i == 1) {
             printf("tokens[1] == '[: %d\n", tok->token_type == T_OPEN_SQ_BRKT);

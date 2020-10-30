@@ -5,7 +5,7 @@ void woah_syntax_error(int line_no, int col_no)
     int i = 0;
 
     for (int line_index = 1; line_index < line_no; line_index++) {
-        while (content_buffer[i] != '\n') {
+        while (program_source_buffer[i] != '\n') {
             i++;
         }
         i++;
@@ -21,13 +21,13 @@ void woah_syntax_error(int line_no, int col_no)
     // Line 2
     fprintf(stderr, " %d | ", line_no);
 
-    while (content_buffer[i] == ' ') {
+    while (program_source_buffer[i] == ' ') {
         i++;
         line_indent++;
     }
 
-    while (content_buffer[i] != '\n' && content_buffer[i] != '\x00') {
-        fprintf(stderr, "%c", content_buffer[i]);
+    while (program_source_buffer[i] != '\n' && program_source_buffer[i] != '\x00') {
+        fprintf(stderr, "%c", program_source_buffer[i]);
         i++;
     }
     fprintf(stderr, "\n");

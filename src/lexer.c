@@ -1,10 +1,12 @@
 #include "lexer.h"
 
+// Expands to condition for matching a keyword
 #define WORD_MATCH(_STR, _LEN, _TOK)                        \
     else if (!strncmp(_STR, &source[tok->start_i], _LEN)) { \
                 tok->token_type = _TOK;                     \
     }                                                       \
 
+// Tokenises the source code in char *source
 Array generate_tokens(char *source, int source_len)
 {
     Array tokens = make_array(TOKENS_ARRAY_SIZE);

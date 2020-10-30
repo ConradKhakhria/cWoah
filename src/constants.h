@@ -9,5 +9,5 @@
 #define INDEX_ERROR  -1
 #define SYNTAX_ERROR -2
 
-char *content_buffer;
+char *program_source_buffer;
 char *filename;
