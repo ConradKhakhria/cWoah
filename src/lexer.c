@@ -1,9 +1,9 @@
 #include "lexer.h"
 
-#define WORD_MATCH(STR, LEN, TOK)                        \
-    else if (strncmp(STR, &source[tok->start_i], LEN)) { \
-                tok->token_type = TOK;                   \
-    }                                                    \
+#define WORD_MATCH(_STR, _LEN, _TOK)                        \
+    else if (!strncmp(_STR, &source[tok->start_i], _LEN)) { \
+                tok->token_type = _TOK;                     \
+    }                                                       \
 
 Array generate_tokens(char *source, int source_len)
 {
@@ -166,14 +166,14 @@ Array generate_tokens(char *source, int source_len)
                 i++;
             }
 
-            if (strncmp("fn ", &source[tok->start_i], 3))
+            if (!strncmp("fn ", &source[tok->start_i], 3))
                 tok->token_type    =  T_FN;
             WORD_MATCH("struct ",  7, T_STRUCT)
             WORD_MATCH("use ",     4, T_USE)
             WORD_MATCH("macro ",   6, T_MACRO)
             WORD_MATCH("globals ", 8, T_GLOBALS)
             WORD_MATCH("while ",   6, T_WHILE)
-            WORD_MATCH("for ",     4, T_FOR)
+            WORD_MATCH("for",     depth, T_FOR)
             WORD_MATCH("if ",      3, T_IF)
             WORD_MATCH("elif ",    5, T_ELIF)
             WORD_MATCH("else ",    5, T_ELSE)
@@ -205,20 +205,26 @@ Array generate_tokens(char *source, int source_len)
                 tok->token_type = T_B16NUM;
                 i += 2;
 
-                while ((47 < source[i] && source[i] < 58)
-                    || (64 < source[i] && source[i] < 71)
-                    || (96 < source[i] && source[i] < 103)
+                while (('0' <= source[i] && source[i] <= '9')
+                    || ('a' <= source[i] && source[i] <= 'f')
+                    || ('A' <= source[i] && source[i] <= 'F')
                     || source[i] == '_') {
                         i++;
                 }
-            } else if ((47 < source[i] && source[i] < 58) || source[i] == '_') {
-                while ((47 < source[i] && source[i] < 58) || source[i] == '_') {
+            } else if (('0' <= source[i] && source[i] <= '9') || source[i] == '_') {
+                while (('0' <= source[i] && source[i] <= '9') || source[i] == '_') {
                     i++;
                 }
             } else {
                 WSEL1("completely unrecognised token '%c'\n", source[i]);
                 woah_syntax_error(line_no, col_no);
             }
+
+            if ('a' <= source[i] && source[i] <= 'z'
+             || 'A' <= source[i] && source[i] <= 'Z') {
+                 WSEL1("tokens cannot consist of digits followed by letters\n");
+                 woah_syntax_error(line_no, col_no);
+             }
         }
 
         tok->end_i   = i;
