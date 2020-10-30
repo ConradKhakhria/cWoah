@@ -12,6 +12,7 @@
 #include "parse/parse.h"
 
 extern char *content_buffer;
+extern char *filename;
 
 char *get_filename(int argc, char *argv[])
 {
@@ -40,9 +41,6 @@ int get_file_contents(char *filename, char *contents_buffer)
     if (fp == NULL) {
         perror("Woah: error opening file");
         exit(errno);
-    } else if (contents_buffer == NULL) {
-        perror("Woah: malloc error");
-        exit(errno);
     }
 
     while ((c = getc(fp)) != EOF) {
@@ -68,8 +66,11 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    char *filename = get_filename(argc, argv);
+    filename       = get_filename(argc, argv);
     content_buffer = calloc(0x10000, sizeof(char));
+
+    MALLOCERR(content_buffer, 1);
+
     int contents_buffer_len = get_file_contents(filename, content_buffer);
 
     Array tokens  = generate_tokens(content_buffer, contents_buffer_len);
@@ -80,10 +81,22 @@ int main(int argc, char *argv[]) {
     Array funcs   = make_array(); // List of all functions
     Array module  = make_array(); // In case of module declaration
 
+#ifdef PRINT_TOKENS
+
     for (int i = 0; i < tokens->index; i++) {
         struct Token *tok = tokens->buffer[i];
 
-        printf("line = %d, column = %d, string = '", tok->line_no, tok->col_no);
+        printf("line = %d, column = %d, token_type = %d, string = '", tok->line_no, tok->col_no, tok->token_type);
         printn(content_buffer, tok->start_i, tok->end_i);
+
+        if (i == 1) {
+            printf("tokens[1] == '[: %d\n", tok->token_type == T_OPEN_SQ_BRKT);
+        }
+
+
     }
+
+#endif
+
+    struct WType *type = parse_type(tokens, 0, tokens->index - 1);
 }
