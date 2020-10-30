@@ -10,3 +10,4 @@
 #define SYNTAX_ERROR -2
 
 char *content_buffer;
+char *filename;

@@ -98,7 +98,7 @@ Array generate_tokens(char *source, int source_len)
 
                 break;
             case '<':
-                if ((tok->token_type = lt_type(source, i - 1)) == T_LEQ || tok->token_type == T_SHL) {
+                if ((tok->token_type = lt_type(source, i - 1)) == T_LEQ) {
                     i += 1;
                 } else if (tok->token_type == T_SWAP) {
                     i += 2;
@@ -106,7 +106,7 @@ Array generate_tokens(char *source, int source_len)
 
                 break;
             case '>':
-                if ((tok->token_type = gt_type(source, i - 1)) == T_GEQ || tok->token_type == T_SHR) {
+                if ((tok->token_type = gt_type(source, i - 1)) == T_GEQ) {
                     i++;
                 }
 
@@ -216,7 +216,7 @@ Array generate_tokens(char *source, int source_len)
                     i++;
                 }
             } else {
-                fprintf(stderr, "Woah: Syntax error: unknown syntax\n");
+                WSEL1("completely unrecognised token '%c'\n", source[i]);
                 woah_syntax_error(line_no, col_no);
             }
         }
@@ -240,12 +240,10 @@ int eq_type(char *source, int index)
     }
 }
 
-// is the token <, << or <=
+// is the token < or <=
 int lt_type(char *source, int index)
 {
     switch (source[index + 1]) {
-        case '<':
-            return T_SHL;
         case '=':
             return T_LEQ;
         case '-':
@@ -257,17 +255,10 @@ int lt_type(char *source, int index)
     }
 }
 
-// is the token >, >> or >=
+// is the token > or >=
 int gt_type(char *source, int index)
 {
-    switch (source[index + 1]) {
-        case '>':
-            return T_SHR;
-        case '=':
-            return T_GEQ;
-        default:
-            return T_GT;
-    }
+   return (source[index + 1] == '=') ? T_GEQ : T_GT;
 }
 
 // is the token +, += or ++
