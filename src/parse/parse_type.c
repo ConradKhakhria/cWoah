@@ -27,7 +27,7 @@ struct WType *parse_type(Array tokens_array, int start, int end)
 
     printf("Guess who: start = %d, end = %d\n", start, end);
 
-    MALLOCERR(type, 5);
+    HANDLEMALLOCERR(type, 5);
 
     if (end - start > 1 && tokens[end - 2]->token_type == T_OPEN_SQ_BRKT
     &&  tokens[end - 1]->token_type == T_CLOSE_SQ_BRKT) {
@@ -44,41 +44,8 @@ struct WType *parse_type(Array tokens_array, int start, int end)
     } else if (tokens[start + 1]->token_type == T_LT && tokens[end - 1]->token_type == T_GT) {
         printf("Found TF_PARAMETRIC\n");
 
+        parse_parametric_type(tokens_array, type, start + 2, end - 2);
 
-        type->type_form = TF_PARAMETRIC;
-        void **derivs   = malloc(sizeof(struct WType *) * (end - start));
-
-        MALLOCERR(derivs, 6);
-
-        // Step through the parameter types
-        int i = start + 2, derivs_index = 0;
-
-        while (i < end - 1) { // Iterate on each new parameter entry
-            if (tokens[i + 1]->token_type == T_LT) { // If parameter is itself parametric
-                int parameter_list_skip = traverse_block(tokens_array, i + 2, end, T_LT, T_GT);
-
-                if (parameter_list_skip == -1) {
-                    WSEL1("mismatched angle brackets in parametric type annotation\n");
-                    woah_syntax_error(tokens[i]->line_no, tokens[i]->col_no);
-                } else { // parameter_list_skip is the index of the '>'
-                    derivs[derivs_index++] = parse_type(tokens_array, i, parameter_list_skip - 1);
-                }
-
-                i = parameter_list_skip + 1;
-            } else {
-                int j = i;
-
-                while (j < end && tokens[j]->token_type != T_COMMA) {
-                    j++;
-                }
-
-                derivs[derivs_index++] = parse_type(tokens_array, i, j);
-                i = j + 1;
-            }
-        }
-
-        type->derivs = derivs;
-        type->num    = derivs_index + 1;
     } else if (tokens[start]->token_type == T_STRUCT) {
         printf("Found TF_STRUCT\n");
 
@@ -86,7 +53,8 @@ struct WType *parse_type(Array tokens_array, int start, int end)
 
         if (tokens[start + 1]->token_type != T_NAME) {
             WSEL1("expected a name after 'struct'\n");
-            woah_syntax_error(tokens[start + 1]->line_no, tokens[start + 1]->col_no);
+            WSEPRINTLINE(tokens[start + 1]->line_no, tokens[start + 1]->col_no);
+            exit(SYNTAX_ERROR);
         }
 
         type->derivs = tokens[start + 1];
@@ -103,10 +71,56 @@ struct WType *parse_type(Array tokens_array, int start, int end)
         }
 
         fprintf(stderr, "'\n");
-        woah_syntax_error(tokens[start]->line_no, tokens[start]->col_no);
+        WSEPRINTLINE(tokens[start]->line_no, tokens[start]->col_no);
+        exit(SYNTAX_ERROR);
     }
 
     return type;
+}
+
+void parse_parametric_type(Array tokens_array, struct WType *type, int start, int end)
+{
+    struct Token **tokens = (struct Token **)tokens_array->buffer;
+    void **derivs         = malloc(sizeof(struct WType *) * (end - start));
+
+    type->type_form = TF_PARAMETRIC;
+
+    HANDLEMALLOCERR(derivs, 6);
+
+    // Step through the parameter types
+    int i = start, derivs_index = 0;
+
+    while (i < end) { // Iterate on each new parameter entry
+        if (tokens[i + 1]->token_type == T_LT) { // If parameter is itself parametric
+            int parameter_list_skip = traverse_block(tokens_array, i + 2, end, T_LT, T_GT);
+
+            if (parameter_list_skip == -1) {
+                WSEL1("mismatched angle brackets in parametric type annotation\n");
+                WSEPRINTLINE(tokens[i]->line_no, tokens[i]->col_no);
+                exit(SYNTAX_ERROR);
+            } else if (tokens[parameter_list_skip]->token_type != T_COMMA && parameter_list_skip < end) {
+                WSEL1("weird syntax in parametric type annotation\n");
+                WSEPRINTLINE(tokens[i]->line_no, tokens[i]->col_no);
+                exit(SYNTAX_ERROR);
+            } else { // parameter_list_skip is the index of the '>'
+                derivs[derivs_index++] = parse_type(tokens_array, i, parameter_list_skip - 1);
+            }
+
+            i = parameter_list_skip + 1;
+        } else {
+            int j = i;
+
+            while (j < end && tokens[j]->token_type != T_COMMA) {
+                j++;
+            }
+
+            derivs[derivs_index++] = parse_type(tokens_array, i, j);
+            i = j + 1;
+        }
+    }
+
+    type->derivs = derivs;
+    type->num    = derivs_index + 1;
 }
 
 Array collect_blocks(Array tokens)
