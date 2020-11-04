@@ -2,3 +2,4 @@ Woah.bnf
 woah
 examples/error_files*
 .vscode*
+*old_*
