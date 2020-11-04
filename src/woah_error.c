@@ -1,6 +1,7 @@
 #include "woah_error.h"
 
-void woah_syntax_error(int line_no, int col_no)
+// Print the line on which the error occured and show the offending token
+void WSEPRINTLINE(int line_no, int col_no)
 {
     int i = 0;
 
@@ -37,8 +38,6 @@ void woah_syntax_error(int line_no, int col_no)
     fprintf(stderr, "|");
     print_indent(col_no - line_indent);
     fprintf(stderr, "^\n");
-
-    exit(1);
 }
 
 void print_indent(int indent_size)
