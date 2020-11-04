@@ -29,11 +29,11 @@ char *get_filename(int argc, char *argv[])
     }
 
     fprintf(stderr, "Woah: error: no files supplied\n");
-    exit(1);
+    exit(NO_FILE_SUPPLIED);
 }
 
 // Reads the contents of filename into program_source_buffer
-inline int get_file_contents()
+int get_file_contents()
 {
     FILE *fp = fopen(filename, "r");
     char c;
@@ -64,13 +64,13 @@ void printn(char *array, int start, int end)
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Woah: error: no files supplied.\n");
-        exit(1);
+        exit(NO_FILE_SUPPLIED);
     }
 
     filename              = get_filename(argc, argv);
     program_source_buffer = calloc(0x10000, sizeof(char));
 
-    MALLOCERR(program_source_buffer, 1);
+    HANDLEMALLOCERR(program_source_buffer, 1);
 
     int contents_buffer_len = get_file_contents();
 
@@ -93,8 +93,6 @@ int main(int argc, char *argv[]) {
         if (i == 1) {
             printf("tokens[1] == '[: %d\n", tok->token_type == T_OPEN_SQ_BRKT);
         }
-
-
     }
 
 #endif
