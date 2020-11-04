@@ -14,16 +14,16 @@
 
 Array generate_tokens(char *source, int source_len);
 
-int eq_type(char *source, int index);
+static int eq_type(char *source, int index);
 
-int lt_type(char *source, int index);
+static int lt_type(char *source, int index);
 
-int gt_type(char *source, int index);
+static int gt_type(char *source, int index);
 
-int add_type(char *source, int index);
+static int add_type(char *source, int index);
 
-int hyp_type(char *source, int index);
+static int hyp_type(char *source, int index);
 
-int ast_type(char *source, int index);
+static int ast_type(char *source, int index);
 
-int fwd_slash_type(char *source, int index);
+static int fwd_slash_type(char *source, int index);
