@@ -218,14 +218,14 @@ Array generate_tokens(char *source, int source_len)
                     i++;
                 }
             } else {
-                WSEL1("completely unrecognised token '%c'\n", source[i]);
+                WSEPRINTMESG("completely unrecognised token '%c'\n", source[i]);
                 WSEPRINTLINE(line_no, col_no);
                 exit(UNRECOGNISED_TOKEN);
             }
 
-            if ('a' <= source[i] && source[i] <= 'z'
-             || 'A' <= source[i] && source[i] <= 'Z') {
-                 WSEL1("tokens cannot consist of digits followed by letters\n");
+            if (('a' <= source[i] && source[i] <= 'z')
+             || ('A' <= source[i] && source[i] <= 'Z')) {
+                 WSEPRINTMESG("tokens cannot consist of digits followed by letters\n");
                  WSEPRINTLINE(line_no, col_no);
                  exit(SYNTAX_ERROR);
              }
@@ -241,7 +241,7 @@ Array generate_tokens(char *source, int source_len)
 }
 
 // is the token = or ==
-static int eq_type(char *source, int index)
+int eq_type(char *source, int index)
 {
     if (source[index + 1] == '=') {
         return T_EQ;
@@ -251,7 +251,7 @@ static int eq_type(char *source, int index)
 }
 
 // is the token < or <=
-static int lt_type(char *source, int index)
+int lt_type(char *source, int index)
 {
     switch (source[index + 1]) {
         case '=':
@@ -266,13 +266,13 @@ static int lt_type(char *source, int index)
 }
 
 // is the token > or >=
-static int gt_type(char *source, int index)
+int gt_type(char *source, int index)
 {
    return (source[index + 1] == '=') ? T_GEQ : T_GT;
 }
 
 // is the token +, += or ++
-static int add_type(char *source, int index)
+int add_type(char *source, int index)
 {
     switch (source[index + 1]) {
         case '=':
@@ -285,7 +285,7 @@ static int add_type(char *source, int index)
 }
 
 // is the token -, -=, -> or --
-static int hyp_type(char *source, int index)
+int hyp_type(char *source, int index)
 {
     switch (source[index + 1]) {
         case '=':
