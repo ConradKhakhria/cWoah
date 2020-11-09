@@ -10,6 +10,7 @@
 #include "enums.h"
 #include "lexer.h"
 #include "parse/parse.h"
+#include "parse/parse_type.h"
 
 extern char *program_source_buffer;
 extern char *filename;
@@ -98,4 +99,6 @@ int main(int argc, char *argv[]) {
 #endif
 
     struct WType *type = parse_type(tokens, 0, tokens->index - 1);
+
+    printf("type form number: %d\n", type->type_form);
 }
