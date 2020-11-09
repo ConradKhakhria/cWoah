@@ -33,7 +33,7 @@ void array_add(Array array,  void *val)
 void *array_index(Array array, int index)
 {
     if (index < 0 || array->index < index) {
-        WSEL1(
+        WSEPRINTMESG(
             "internal error 0x%x - attempt to get %dth index of list length %d\n",
             INDEX_OUT_OF_BOUNDS,
             index,
