@@ -17,6 +17,7 @@ extern char *filename;
 
 char *get_filename(int argc, char *argv[])
 {
+    /* Returns the string in argv containing the filename */
     for (int arg_index = 0; arg_index < argc; arg_index++) {
         int end_index  = 0;
 
@@ -36,6 +37,9 @@ char *get_filename(int argc, char *argv[])
 // Reads the contents of filename into program_source_buffer
 int get_file_contents()
 {
+   /* Opens the source file, reads the contents into program_source_buffer
+    * and returns its length.
+    */
     FILE *fp = fopen(filename, "r");
     char c;
     int i = 0;
@@ -49,12 +53,14 @@ int get_file_contents()
         program_source_buffer[i++] = c;
     }
 
+    fclose(fp);
+
     return i;
 }
 
-// Prints a string between start and end
 void printn(char *array, int start, int end)
 {
+    /* Prints a string between start and end */
     for (; start < end; start++) {
         printf("%c", array[start]);
     }
@@ -83,6 +89,8 @@ int main(int argc, char *argv[]) {
     Array funcs   = make_array(); // List of all functions
     Array module  = make_array(); // In case of module declaration
 
+// The main function right now is more of a platform for debugging existing
+// parts of the compiler as they're written.
 #ifdef PRINT_TOKENS
 
     for (int i = 0; i < tokens->index; i++) {
