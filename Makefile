@@ -2,10 +2,10 @@ CC=gcc
 CD=cd
 RM=rm
 SRC=src
-INCL=datastructures/datastructures.c lexer.c parse/parse.c woah_error.c
+INCL=datastructures/datastructures.c lexer.c parse/parse.c parse/parse_type.c woah_error.c
 MAIN=main.c
 TARGET=woah
-FLAGS=-lm
+FLAGS=-lm -Wall
 
 all: $(TARGET)
 
