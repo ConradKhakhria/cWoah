@@ -176,9 +176,9 @@ Array generate_tokens(char* source, int source_len)
         if (!token_type_determined) {
             int depth = 0;
 
-            while ((96 < source[i] && source[i] < 123)
-                || (64 < source[i] && source[i] < 91)
-                || (0 < depth && (47 < source[i] && source[i] < 58))
+            while (('a' <= source[i] && source[i] <= 'z')
+                || ('A' <= source[i] && source[i] <= 'Z')
+                || (depth > 0 && ('0' <= source[i] && source[i] <= '9'))
                 || source[i] == '_') {
                 token_type_determined = true;
                 depth++;
