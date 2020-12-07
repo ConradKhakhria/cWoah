@@ -1,12 +1,31 @@
 #include "parse_type.h"
 
 // Returns a ptr to a Wtype struct describing a type annotation
-struct WType *parse_type(Array tokens_array, int start, int end)
+struct WType* parse_type(Array tokens_array, int start, int end)
 {
-    struct Token **tokens = (struct Token **)tokens_array->buffer;
-    struct WType *type    = malloc(sizeof(struct WType *));
-
-    printf("Guess who: start = %d, end = %d\n", start, end);
+   /* Parses a type annotation
+    *
+    * Parameters
+    * ----------
+    * - Array tokens_array: the list of all tokens in the program.
+    * 
+    * - int start: the index of the first token in the type annotation.
+    * 
+    * - int end:   the index of the last token in the type annotation plus 1.
+    * 
+    * Returns
+    * -------
+    * A pointer to a potentially nested struct WType (defined in
+    * /src/datastructures/datastructures.h).
+    * 
+    * Notes
+    * -----
+    * This function isn't fully functional yet as there are some problems in
+    * parsing parametric type annotations e.g. 'HashMap<int, int[]>', so the
+    * function prints what it encounters.
+    */
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
+    struct WType* type    = malloc(sizeof(struct WType *));
 
     HANDLEMALLOCERR(type, 5);
 
@@ -63,18 +82,29 @@ struct WType *parse_type(Array tokens_array, int start, int end)
     return type;
 }
 
-struct WType *new_parse_type(Array tokens_array, int start, int end)
+struct WType* new_parse_type(Array tokens_array, int start, int end)
 {
    /* Recursive descent parser for type annotations
     *
-    * Arguments
+    * Parameters
     * ---------
     * - Array tokens_array: the list of tokens for the whole program
+    * 
     * - int start: the index of the first token in the type annotation
+    * 
     * - int end: the index of the last token in the type annotation
+    * 
+    * Returns
+    * -------
+    * A pointer to a potentially nested struct WType (defined in
+    * /src/datastructures/datastructures.h).
+    * 
+    * Notes
+    * -----
+    * This is an attempt to fix parse_type(), and if successful will replace it.
     */
-    struct WType *type    = malloc(sizeof(struct WType));
-    struct Token **tokens = (struct Token **)tokens_array->buffer;
+    struct WType* type    = malloc(sizeof(struct WType));
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
 
     HANDLEMALLOCERR(type, 5);
 
@@ -119,10 +149,29 @@ struct WType *new_parse_type(Array tokens_array, int start, int end)
     return type;
 }
 
-void parse_parametric_type(Array tokens_array, struct WType *type, int start, int end)
+void parse_parametric_type(Array tokens_array, struct WType* type, int start, int end)
 {
-    struct Token **tokens = (struct Token **)tokens_array->buffer;
-    void **derivs         = malloc(sizeof(struct WType *) * (end - start));
+   /* Parses a parametric type.
+    *
+    * This is actually quite difficult which is why it needs its own function.
+    * 
+    * Parameters
+    * ----------
+    * - Array tokens_array: the program tokenised.
+    * 
+    * - struct WType* type: the TF_PARAMETRIC type struct to modify.
+    * 
+    * - int start: start index of the parametric type
+    * 
+    * - int end:   end index of the parametric type plus 1
+    * 
+    * Modifies
+    * --------
+    * struct WType* type - rather than returning it, parse_parametric_type just
+    * adds in the struct fields that haven't been covered yet
+    */
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
+    void** derivs         = malloc(sizeof(struct WType *) * (end - start));
 
     type->type_form = TF_PARAMETRIC;
 

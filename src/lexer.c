@@ -6,21 +6,32 @@
                 tok->token_type = _TOK;                     \
     }                                                       \
 
-Array generate_tokens(char *source, int source_len)
+Array generate_tokens(char* source, int source_len)
 {
    /* Generates the list of tokens from the source code to be parsed.
     *
-    * Each struct Token (defined in /src/datastructures/datastructures.c) contains
-    * the type of the token, start and end index within program_source_buffer, as
-    * well as the line and column number of the token's first character in the
-    * actual source file.
+    * Parameters
+    * ----------
+    * - char* source:   a buffer containing source code to be tokenised. A pointer
+    *                   is used rather than directly using the global variable
+    *                   program_source_buffer because it might be useful to
+    *                   tokenise module imports individually.
+    * 
+    * - int source_len: the length of the char *source buffer.
+    * 
+    * Returns
+    * -------
+    * An Array of struct Tokens. Each struct Token (defined in
+    * /src/datastructures/datastructures.c) contains the type of the token,
+    * start and end index within program_source_buffer, as well as the line and
+    * column number of the token's first character in the actual source file.
     */
-    Array tokens = make_array(TOKENS_ARRAY_SIZE);
+    Array tokens = make_array();
     int i = 0, line_no = 1, col_no = 1;
 
     // Iterate on each new token
     while (i < source_len) {
-        struct Token *tok = calloc(1, sizeof(struct Token));
+        struct Token* tok = calloc(1, sizeof(struct Token));
         bool token_type_determined = true;
 
         // Skip all whitespace and comments
@@ -247,7 +258,7 @@ Array generate_tokens(char *source, int source_len)
 }
 
 // is the token = or ==
-int eq_type(char *source, int index)
+int eq_type(char* source, int index)
 {
     if (source[index + 1] == '=') {
         return T_EQ;
@@ -257,7 +268,7 @@ int eq_type(char *source, int index)
 }
 
 // is the token < or <=
-int lt_type(char *source, int index)
+int lt_type(char* source, int index)
 {
     switch (source[index + 1]) {
         case '=':
@@ -272,13 +283,13 @@ int lt_type(char *source, int index)
 }
 
 // is the token > or >=
-int gt_type(char *source, int index)
+int gt_type(char* source, int index)
 {
    return (source[index + 1] == '=') ? T_GEQ : T_GT;
 }
 
 // is the token +, += or ++
-int add_type(char *source, int index)
+int add_type(char* source, int index)
 {
     switch (source[index + 1]) {
         case '=':
@@ -291,7 +302,7 @@ int add_type(char *source, int index)
 }
 
 // is the token -, -=, -> or --
-int hyp_type(char *source, int index)
+int hyp_type(char* source, int index)
 {
     switch (source[index + 1]) {
         case '=':

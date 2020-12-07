@@ -4,13 +4,20 @@
 
 #include "constants.h"
 
-// Error handling macros
+/* Error handling macros */
 
+// This gets the length of a number when it's printed in decimal
 #define NUMLEN(x) (int)log10((float)x)
-#define WSEPRINTMESG(...) do {                                                 \
+
+// Prints the details of an error before the erroneous line is printed
+// with WSEPRINTLINE()
+#define WSEPRINTMESG(...) do {                                          \
     fprintf(stderr, "Woah: Syntax Error in file '%s'\n=> ", filename);  \
     fprintf(stderr, __VA_ARGS__);                                       \
 } while (0)
+
+// The program will panic if there are any errors allocating buffers. The
+// _CODE parameter allows us to see where in the program the error occured
 #define HANDLEMALLOCERR(_BUF, _CODE) do {                                   \
     if (_BUF == NULL) {                                                     \
         WSEPRINTMESG("internal malloc() error (sorry): error code 0x%x\n", _CODE); \

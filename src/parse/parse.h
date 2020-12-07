@@ -5,4 +5,4 @@
 
 int traverse_block(Array prog, int start, int end, int open, int close);
 
-Array collect_blocks(Array tokens);
+int collect_blocks(Array tokens, Array* blocks);

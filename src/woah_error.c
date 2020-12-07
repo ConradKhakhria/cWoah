@@ -1,8 +1,8 @@
 #include "woah_error.h"
 
-// Print the line on which the error occured and show the offending token
 void WSEPRINTLINE(int line_no, int col_no)
 {
+    /* Prints the line and column number of the token that caused an error */
     int i = 0;
 
     for (int line_index = 1; line_index < line_no; line_index++) {
@@ -42,6 +42,7 @@ void WSEPRINTLINE(int line_no, int col_no)
 
 void print_indent(int indent_size)
 {
+    /* So that the margin of the line being shown is right. */
     for (int i = 0; i < indent_size; i++) {
         fprintf(stderr, " ");
     }

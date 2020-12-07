@@ -12,10 +12,10 @@
 #include "parse/parse.h"
 #include "parse/parse_type.h"
 
-extern char *program_source_buffer;
-extern char *filename;
+extern char* program_source_buffer;
+extern char* filename;
 
-char *get_filename(int argc, char *argv[])
+char* get_filename(int argc, char *argv[])
 {
     /* Returns the string in argv containing the filename */
     for (int arg_index = 0; arg_index < argc; arg_index++) {
@@ -40,9 +40,9 @@ int get_file_contents()
    /* Opens the source file, reads the contents into program_source_buffer
     * and returns its length.
     */
-    FILE *fp = fopen(filename, "r");
-    char c;
-    int i = 0;
+    FILE* fp = fopen(filename, "r");
+    char  c;
+    int   i  = 0;
 
     if (fp == NULL) {
         perror("Woah: error opening file");
@@ -58,7 +58,7 @@ int get_file_contents()
     return i;
 }
 
-void printn(char *array, int start, int end)
+void printn(char* array, int start, int end)
 {
     /* Prints a string between start and end */
     for (; start < end; start++) {
@@ -68,7 +68,7 @@ void printn(char *array, int start, int end)
     printf("'\n");
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Woah: error: no files supplied.\n");
         exit(NO_FILE_SUPPLIED);
@@ -80,21 +80,24 @@ int main(int argc, char *argv[]) {
     HANDLEMALLOCERR(program_source_buffer, 1);
 
     int contents_buffer_len = get_file_contents();
+    Array tokens = generate_tokens(program_source_buffer, contents_buffer_len);
 
-    Array tokens  = generate_tokens(program_source_buffer, contents_buffer_len);
+    // Blocks defined in the file and in imports. Modified by collect_blocks()
+    // defined in /src/parse/parse.c
+    Array blocks[4] = {
+        make_array(),   // functions
+        make_array(),   // structs
+        make_array(),   // types
+        make_array()    // module
+    };
 
-    /* Blocks defined in the file and in imports */
-    Array types   = make_array(); // List of types / typedefs
-    Array structs = make_array(); // List of all structs
-    Array funcs   = make_array(); // List of all functions
-    Array module  = make_array(); // In case of module declaration
 
 // The main function right now is more of a platform for debugging existing
 // parts of the compiler as they're written.
 #ifdef PRINT_TOKENS
 
     for (int i = 0; i < tokens->index; i++) {
-        struct Token *tok = tokens->buffer[i];
+        struct Token* tok = tokens->buffer[i];
 
         printf("line = %d, column = %d, token_type = %d, string = '", tok->line_no, tok->col_no, tok->token_type);
         printn(program_source_buffer, tok->start_i, tok->end_i);
@@ -106,7 +109,7 @@ int main(int argc, char *argv[]) {
 
 #endif
 
-    struct WType *type = parse_type(tokens, 0, tokens->index - 1);
+    struct WType* type = parse_type(tokens, 0, tokens->index - 1);
 
     printf("type form number: %d\n", type->type_form);
 }
