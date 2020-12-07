@@ -6,9 +6,15 @@
                 tok->token_type = _TOK;                     \
     }                                                       \
 
-// Tokenises the source code in char *source
 Array generate_tokens(char *source, int source_len)
 {
+   /* Generates the list of tokens from the source code to be parsed.
+    *
+    * Each struct Token (defined in /src/datastructures/datastructures.c) contains
+    * the type of the token, start and end index within program_source_buffer, as
+    * well as the line and column number of the token's first character in the
+    * actual source file.
+    */
     Array tokens = make_array(TOKENS_ARRAY_SIZE);
     int i = 0, line_no = 1, col_no = 1;
 
@@ -44,7 +50,7 @@ Array generate_tokens(char *source, int source_len)
         tok->start_i = i++;
         tok->col_no  = col_no;
 
-        // Go through single character tokens
+        // Go through symbol tokens
         switch (source[i - 1]) {
             case '\n':
                 tok->token_type = T_NEWLINE;
@@ -175,7 +181,7 @@ Array generate_tokens(char *source, int source_len)
             WORD_MATCH("macro ",   6, T_MACRO)
             WORD_MATCH("globals ", 8, T_GLOBALS)
             WORD_MATCH("while ",   6, T_WHILE)
-            WORD_MATCH("for",     depth, T_FOR)
+            WORD_MATCH("for ",     4, T_FOR)
             WORD_MATCH("if ",      3, T_IF)
             WORD_MATCH("elif ",    5, T_ELIF)
             WORD_MATCH("else ",    5, T_ELSE)
