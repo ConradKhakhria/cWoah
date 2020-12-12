@@ -92,25 +92,5 @@ int main(int argc, char* argv[]) {
         make_array()    // globals
     };
 
-
-// The main function right now is more of a platform for debugging existing
-// parts of the compiler as they're written.
-#ifdef PRINT_TOKENS
-
-    for (int i = 0; i < tokens->index; i++) {
-        struct Token* tok = tokens->buffer[i];
-
-        printf("line = %d, column = %d, token_type = %d, string = '", tok->line_no, tok->col_no, tok->token_type);
-        printn(program_source_buffer, tok->start_i, tok->end_i);
-
-        if (i == 1) {
-            printf("tokens[1] == '[: %d\n", tok->token_type == T_OPEN_SQ_BRKT);
-        }
-    }
-
-#endif
-
-    struct WType* type = parse_type(tokens, 0, tokens->index - 1);
-
-    printf("type form number: %d\n", type->type_form);
+    collect_blocks(tokens, blocks);
 }
