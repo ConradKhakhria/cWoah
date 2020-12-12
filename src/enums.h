@@ -101,3 +101,12 @@ enum TypeForm {
     TF_STRUCT,      // struct foo
     TF_ATOMIC,      // T
 };
+
+enum MallocErrorCodes {
+    SOURCE_BUF,
+    RETARRAY,
+    RETARRAY_BUF,
+    RETARRAY_REALLOC,
+    PARAMETRIC_TYPE_DERIVS,
+    TYPE_STRUCT
+};

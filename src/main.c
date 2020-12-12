@@ -77,14 +77,14 @@ int main(int argc, char* argv[]) {
     filename              = get_filename(argc, argv);
     program_source_buffer = calloc(0x10000, sizeof(char));
 
-    HANDLEMALLOCERR(program_source_buffer, 1);
+    HANDLEMALLOCERR(program_source_buffer, SOURCE_BUF);
 
     int contents_buffer_len = get_file_contents();
     Array tokens = generate_tokens(program_source_buffer, contents_buffer_len);
 
     // Blocks defined in the file and in imports. Modified by collect_blocks()
     // defined in /src/parse/parse.c
-    Array blocks[4] = {
+    Array blocks[4] = { 
         make_array(),   // functions
         make_array(),   // structs
         make_array(),   // types
@@ -109,7 +109,7 @@ int main(int argc, char* argv[]) {
 
 #endif
 
-    struct WType* type = parse_type(tokens, 0, tokens->index - 1);
+    struct WType* type = new_parse_type(tokens, 0, tokens->index - 1);
 
     printf("type form number: %d\n", type->type_form);
 }
