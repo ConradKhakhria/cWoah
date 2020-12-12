@@ -84,11 +84,12 @@ int main(int argc, char* argv[]) {
 
     // Blocks defined in the file and in imports. Modified by collect_blocks()
     // defined in /src/parse/parse.c
-    Array blocks[4] = { 
+    Array blocks[5] = { 
         make_array(),   // functions
         make_array(),   // structs
         make_array(),   // types
-        make_array()    // module
+        make_array(),   // module
+        make_array()    // globals
     };
 
 
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]) {
 
 #endif
 
-    struct WType* type = new_parse_type(tokens, 0, tokens->index - 1);
+    struct WType* type = parse_type(tokens, 0, tokens->index - 1);
 
     printf("type form number: %d\n", type->type_form);
 }
