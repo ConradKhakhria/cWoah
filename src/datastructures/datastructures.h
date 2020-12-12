@@ -49,11 +49,41 @@ struct WTypedef {
     
 };
 
+/* A struct WFunction contains all of the necessary information about a function.
+ *
+ * Elements
+ * --------
+ * - struct Token* function_name:
+ *      The token for the function's name.
+ * 
+ * - struct WTypedef* parent_name:
+ *      The type of which this function is a method (NULL if it isn't one).
+ * 
+ * - struct Token** arg_names:
+ *      The (ordered) list of names of the arguments.
+ * 
+ * - struct WType* arg_types:
+ *      The corresponding types of each arguments.
+ * 
+ * - struct WType ret_type:
+ *      The return type (NULL if none) of the function.
+ * 
+ * - struct WParseExpr* body:
+ *      The list of statements comprising the function's body
+ * 
+ * - uint_fast32_t arg_count:
+ *      The number of arguments.
+ * 
+ * - uint_fast32_t body_len:
+ *      The length of the function body array.
+ */
 struct WFunction {
-    char*              function_name;
+    struct Token*      function_name;
     struct WTypedef*   parent_type;
-    char**             arg_names;
+    struct Token**     arg_names;
     struct WType*      arg_types;
     struct WType       ret_type;
     struct WParseExpr* body;
+    uint_fast32_t      arg_count;
+    uint_fast32_t      body_len;
 };
