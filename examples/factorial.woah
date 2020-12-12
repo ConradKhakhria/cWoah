@@ -1,4 +1,4 @@
-use io; // 'io' is a library containing io functions
+use io; // 'io' is a library containing input/output functions
 
 @(Integral T) // Generics are defined with function decorators 
 fn factorial(n: T) -> T {
