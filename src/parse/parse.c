@@ -30,19 +30,24 @@ int traverse_block(Array prog, int start, int end, int open, int close)
     * ------- 
     */
     struct Token** tokens = (struct Token **)prog->buffer;
-    int bracket_level     = 1;
+    int bracket_depth     = 1;
+    int index = start;
 
-    for (;start < end && bracket_level > 0; start++) {
-        printf("%d, ", bracket_level);
-
-        if (tokens[start]->token_type == T_OPEN_CURLY_BRKT) {
-            bracket_level++;
-        } else if (tokens[start]->token_type == T_CLOSE_CURLY_BRKT) {
-            bracket_level--;
+    while (start < end && bracket_depth > 0) {
+        if (tokens[index]->token_type == open) {
+            bracket_depth += 1;
+        } else if (tokens[index]->token_type == close) {
+            bracket_depth -= 1;
         }
+
+        index += 1;
     }
 
-    return (bracket_level > 0) ? -1 : start;
+    if (bracket_depth > 0) { // i.e. unbalanced brackets.
+        return -1;
+    } else {
+        return index - 1; // As it goes one beyond the last close.
+    }
 }
 
 int collect_blocks(Array tokens, Array* blocks)
