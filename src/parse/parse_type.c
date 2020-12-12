@@ -1,88 +1,6 @@
 #include "parse_type.h"
 
-// Returns a ptr to a Wtype struct describing a type annotation
 struct WType* parse_type(Array tokens_array, int start, int end)
-{
-   /* Parses a type annotation
-    *
-    * Parameters
-    * ----------
-    * - Array tokens_array: the list of all tokens in the program.
-    * 
-    * - int start: the index of the first token in the type annotation.
-    * 
-    * - int end:   the index of the last token in the type annotation plus 1.
-    * 
-    * Returns
-    * -------
-    * A pointer to a potentially nested struct WType (defined in
-    * /src/datastructures/datastructures.h).
-    * 
-    * Notes
-    * -----
-    * This function isn't fully functional yet as there are some problems in
-    * parsing parametric type annotations e.g. 'HashMap<int, int[]>', so the
-    * function prints what it encounters.
-    */
-    struct Token** tokens = (struct Token **)tokens_array->buffer;
-    struct WType* type    = malloc(sizeof(struct WType *));
-
-    HANDLEMALLOCERR(type, 5);
-
-    if (end - start > 1 && tokens[end - 2]->token_type == T_OPEN_SQ_BRKT
-    &&  tokens[end - 1]->token_type == T_CLOSE_SQ_BRKT) {
-        printf("Found TF_LIST\n");
-
-
-        type->type_form = TF_LIST;
-        type->derivs    = parse_type(tokens_array, start, end - 2);
-    } else if (tokens[start]->token_type == T_AMPERSAND) {
-        printf("Found TF_POINTER\n");
-
-        type->type_form = TF_POINTER;
-
-        if (tokens[start + 1]->token_type == T_OPEN_BRKT
-         && tokens[end - 1]->token_type == T_CLOSE_BRKT) {
-            type->derivs = parse_type(tokens_array, start + 2, end - 1);
-        } else {
-            type->derivs = parse_type(tokens_array, start + 1, end);
-        }
-    } else if (tokens[start + 1]->token_type == T_LT && tokens[end - 1]->token_type == T_GT) {
-        printf("Found TF_PARAMETRIC\n");
-
-        parse_parametric_type(tokens_array, type, start + 2, start + end - 2);
-    } else if (tokens[start]->token_type == T_STRUCT) {
-        printf("Found TF_STRUCT\n");
-
-        type->type_form = TF_STRUCT;
-
-        if (tokens[start + 1]->token_type != T_NAME) {
-            WSEPRINTMESG("expected a name after 'struct'\n");
-            WSEPRINTLINE(tokens[start + 1]->line_no, tokens[start + 1]->col_no);
-            exit(SYNTAX_ERROR);
-        }
-
-        type->derivs = tokens[start + 1];
-    } else if (end - start == 1 && tokens[start]->token_type == T_NAME) {
-        printf("Found TF_ATOMIC\n");
-
-        type->type_form = TF_ATOMIC;
-    } else {
-        WSEPRINTMESG("unrecognised syntax in type annotation: token '");
-
-        for (int _p_in = tokens[start]->start_i; _p_in < tokens[start]->end_i; _p_in++) {
-            fprintf(stderr, "%c", program_source_buffer[_p_in]);
-        }
-
-        fprintf(stderr, "'\n");
-        WSEPRINTLINE(tokens[start]->line_no, tokens[start]->col_no);
-        exit(SYNTAX_ERROR);
-    }
-
-    return type;
-}
-
-struct WType* new_parse_type(Array tokens_array, int start, int end)
 {
    /* Recursive descent parser for type annotations
     *
@@ -114,10 +32,10 @@ struct WType* new_parse_type(Array tokens_array, int start, int end)
     } else if (tokens[end - 1]->token_type == T_OPEN_SQ_BRKT
       && tokens[end]->token_type == T_CLOSE_SQ_BRKT) {
         type->type_form = TF_LIST;
-        type->derivs    = (struct WType *)new_parse_type(tokens_array, start, end - 2);
+        type->derivs    = (struct WType *)parse_type(tokens_array, start, end - 2);
     } else if (tokens[start]->token_type == T_AMPERSAND) {
         type->type_form = TF_POINTER;
-        type->derivs    = (struct WType *)new_parse_type(tokens_array, start + 1, end);
+        type->derivs    = (struct WType *)parse_type(tokens_array, start + 1, end);
     } else if (tokens[start + 1]->token_type == T_LT
       && tokens[end]->token_type == T_GT) {
         parse_parametric_type(tokens_array, type, start + 2, end);
@@ -131,7 +49,9 @@ struct WType* new_parse_type(Array tokens_array, int start, int end)
             fprintf(stderr, "%c", program_source_buffer[_p_in]);
         }
 
-        fprintf(stderr, "'\n");
+        fprintf(stderr, "'\nPerhaps you have unbalanced angle brackets, or " \
+                        "are using a keyword as a type name.\n");
+
         WSEPRINTLINE(tokens[start]->line_no, tokens[start]->col_no);
         exit(SYNTAX_ERROR);
     }
@@ -184,7 +104,7 @@ void parse_parametric_type(Array tokens_array, struct WType* type, int start, in
             slice_end += 1;
         }
 
-        derivs[derivs_index] = new_parse_type(tokens_array, tokens_index, slice_end - 1);
+        derivs[derivs_index] = parse_type(tokens_array, tokens_index, slice_end - 1);
         derivs_index += 1;
 
         tokens_index = slice_end + 1;
