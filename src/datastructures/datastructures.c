@@ -6,13 +6,13 @@ Array make_array()
     /* Allocates and initialises an Array */
     Array retarray = calloc(1, sizeof(struct Array));
 
-    HANDLEMALLOCERR(retarray, RETARRAY);
+    HANDLEMALLOCERR(retarray, MAKE_ARRAY_INIT_STRUCT);
 
     retarray->buffer     = calloc(ARRAY_BUFFER_SIZE, sizeof(void *));
     retarray->buffer_len = ARRAY_BUFFER_SIZE;
     retarray->index      = 0;
 
-    HANDLEMALLOCERR(retarray->buffer, RETARRAY_BUF);
+    HANDLEMALLOCERR(retarray->buffer, MAKE_ARRAY_INIT_BUFFER);
 
     return retarray;
 }
@@ -34,10 +34,10 @@ void array_add(Array array, void* val)
     if (array->index >= array->buffer_len) {
         void** new_buffer = realloc(array->buffer, array->buffer_len + ARRAY_BUFFER_GROW);
 
-        HANDLEMALLOCERR(new_buffer, RETARRAY_REALLOC);
+        HANDLEMALLOCERR(new_buffer, ARRAY_ADD_BUFFER_REALLOC);
 
-        free(array->buffer);
-        array->buffer = new_buffer;
+        array->buffer      = new_buffer;
+        array->buffer_len += ARRAY_BUFFER_GROW;
     }
 
     array->buffer[array->index++] = val;
