@@ -81,3 +81,10 @@ struct WFunction {
     uint_fast32_t      arg_count;     /* The number of arguments. */
     uint_fast32_t      body_len;      /* The length of the function body array. */
 };
+
+struct WStruct {
+    struct Token*  struct_name; /* Name of the struct. */
+    struct Token** field_names; /* Names of the struct's fields. */
+    struct WType** field_types; /* Types of the struct's fields. */
+    uint_fast32_t  field_count; /* The number of fields the struct has. */
+};
