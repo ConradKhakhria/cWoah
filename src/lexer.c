@@ -251,7 +251,14 @@ Array generate_tokens(char* source, int source_len)
         tok->end_i   = i;
         tok->line_no = line_no;
         col_no += tok->end_i - tok->start_i;
-        array_add(tokens, tok);
+
+        // NOTE: THIS IS A TEMPORARY FIX, AS THERE IS SO FAR NO KNOWN NEED TO
+        //       REGISTER NEWLINE CHARACTERS. IF AT ANY POINT THIS BECOMES
+        //       NECESSARY, THIS SHOULD BE REPLACED.
+        if (tok->token_type != T_NEWLINE) {
+            array_add(tokens, tok);
+        }
+
     }
 
     return tokens;
