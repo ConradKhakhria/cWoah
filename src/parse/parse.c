@@ -52,6 +52,25 @@ int traverse_block(Array prog, int start, int end, int t_open, int t_close)
 
 struct WFunction* collect_block_function(Array tokens_array, int index)
 {
+   /* Creates a struct WFunction* containing all information about a function.
+    * Specifically, this function collects:
+    * - The name of the function (as a token).
+    * - The parent type (if it's a method).
+    * - The names of all the arguments.
+    * - The types of all the arguments.
+    * - The function's return type.
+    * - The index in tokens_array of the start of the function's body.
+    * 
+    * Parameters
+    * ----------
+    * - Array tokens_array: the list of tokens containing the function.
+    * 
+    * - int index: index of the keyword 'fn' in tokens_array.
+    * 
+    * Returns
+    * -------
+    * The function's struct WFunction*.
+    */
     struct WFunction* function = malloc(sizeof(struct WFunction));
     struct Token**    tokens   = (struct Token **)tokens_array->buffer;
 
