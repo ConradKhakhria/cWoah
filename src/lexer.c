@@ -315,3 +315,27 @@ int hyp_type(char* source, int index)
             return T_MINUS;
     }
 }
+
+bool token_compare(struct Token* a, struct Token* b)
+{
+   /* Compares the string value of each token
+    *
+    * Parameters
+    * ----------
+    * - struct Token* a/b: the two tokens to compare.
+    * 
+    * Returns: whether or not they're equal.
+    * -------
+    */
+    if (a->end_i - a->start_i != b->end_i - b->start_i) {
+        return false;
+    }
+
+    if (memcmp(&program_source_buffer[a->start_i],
+               &program_source_buffer[b->start_i],
+               a->end_i - a->start_i)) {
+        return false;
+    } else {
+        return true;
+    }
+}

@@ -14,7 +14,6 @@
 
 Array generate_tokens(char* source, int source_len);
 
-
 int eq_type(char* source, int index);
 
 int lt_type(char* source, int index);
@@ -28,3 +27,5 @@ int hyp_type(char* source, int index);
 int ast_type(char* source, int index);
 
 int fwd_slash_type(char* source, int index);
+
+bool token_compare(struct Token* a, struct Token* b);
