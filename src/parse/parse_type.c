@@ -50,7 +50,7 @@ struct WType* parse_type(Array tokens_array, int start, int end)
         }
 
         fprintf(stderr, "'\nPerhaps you have unbalanced angle brackets, or " \
-                        "are using a keyword as a type name.\n");
+                           "are using a keyword as a type name.\n");
 
         error_println(tokens[start]->line_no, tokens[start]->col_no);
         exit(SYNTAX_ERROR);
@@ -86,6 +86,8 @@ void parse_parametric_type(Array tokens_array, struct WType* type, int start, in
     int tokens_index = start;
 
     malloc_error(derivs, PARAMETRIC_TYPE_DERIVS);
+
+    type->name = tokens[start - 2];
 
     // each iteration should land on a new parameter.
     while (tokens_index < end) {
