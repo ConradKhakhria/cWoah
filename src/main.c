@@ -9,7 +9,9 @@
 #include "datastructures/datastructures.h"
 #include "enums.h"
 #include "lexer.h"
+#include "misc.h"
 #include "parse/parse.h"
+#include "parse/parse_block_collect.h"
 #include "parse/parse_type.h"
 
 extern char* program_source_buffer;
@@ -78,20 +80,18 @@ int main(int argc, char* argv[]) {
 
     malloc_error(program_source_buffer, MAIN_PROGRAM_SOURCE_BUFFER);
 
-    int contents_buffer_len = get_file_contents();
-    Array tokens = generate_tokens(program_source_buffer, contents_buffer_len);
+    int psb_len  = get_file_contents();
+    Array tokens = generate_tokens(program_source_buffer, psb_len);
 
     // Blocks defined in the file and in imports. Modified by collect_blocks()
     // defined in /src/parse/parse.c
     Array blocks[5] = { 
-        make_array(),   // functions
-        make_array(),   // structs
-        make_array(),   // types
-        make_array(),   // module
-        make_array()    // globals
+        make_array(),   /* functions */
+        make_array(),   /* structs */
+        make_array(),   /* types  */
+        make_array(),   /* module */
+        make_array()    /* globals */
     };
 
     collect_blocks(tokens, blocks);
-
-    printf("I now have %d functions!\n", blocks[0]->index);
 }
