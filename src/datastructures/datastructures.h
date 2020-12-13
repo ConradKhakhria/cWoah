@@ -32,15 +32,37 @@ bool array_contains_string(Array array, char* string, size_t len);
 /* Lexing and parsing */
 
 struct Token {
-    int token_type;
-    int start_i;
-    int end_i;
-    int line_no;
-    int col_no;
+    int token_type; /* As defined in /src/enums.h */
+    int start_i;    /* The index of the token's first character in the source file */
+    int end_i;      /* The index of the token's last character */
+    int line_no;    /* The line number of the token */
+    int col_no;     /* The column number of the token's firdst character */
 };
 
+/* The use of each field defined by the type form:  
+ *
+ * type form = TF_LIST: T[]
+ *  - derivs = struct WType: T
+ *  - num    = junk value
+ *
+ *  TF_POINTER: &T
+ *  - derivs = struct WType: T
+ *  - num    = junk
+ *
+ *  TF_PARAMETRIC: T<x, y, ..>
+ *  - derivs = struct WType[]: [x, y, ...]
+ *  - num    = len(derivs)
+ *
+ *  TF_STRUCT: struct foo
+ *  - derivs = (struct Token *)name_token
+ *  - num    = junk
+ *
+ *  TF_ATOMIC: T
+ *  - derivs = junk
+ *  - num    = index in the list of types
+ */
 struct WType {
-    int   type_form; // defined in /src/enums.h
+    int   type_form; /* defined in /src/enums.h */
     int   num;
     void* derivs;
 };
@@ -49,41 +71,13 @@ struct WTypedef {
     
 };
 
-/* A struct WFunction contains all of the necessary information about a function.
- *
- * Elements
- * --------
- * - struct Token* function_name:
- *      The token for the function's name.
- * 
- * - struct WTypedef* parent_name:
- *      The type of which this function is a method (NULL if it isn't one).
- * 
- * - struct Token** arg_names:
- *      The (ordered) list of names of the arguments.
- * 
- * - struct WType* arg_types:
- *      The corresponding types of each arguments.
- * 
- * - struct WType ret_type:
- *      The return type (NULL if none) of the function.
- * 
- * - struct WParseExpr* body:
- *      The list of statements comprising the function's body
- * 
- * - uint_fast32_t arg_count:
- *      The number of arguments.
- * 
- * - uint_fast32_t body_len:
- *      The length of the function body array.
- */
 struct WFunction {
-    struct Token*      function_name;
-    struct WTypedef*   parent_type;
-    struct Token**     arg_names;
-    struct WType**     arg_types;
-    struct WType*      ret_type;
-    struct WParseExpr* body;
-    uint_fast32_t      arg_count;
-    uint_fast32_t      body_len;
+    struct Token*      function_name; /* The token for the function's name. */
+    struct WTypedef*   parent_type;   /* For if the function is a method (NULL if not) */
+    struct Token**     arg_names;     /* The (ordered) list of names of the arguments. */
+    struct WType**     arg_types;     /* The corresponding types of each arguments. */
+    struct WType*      ret_type;      /* The return type (NULL if none) of the function. */
+    struct WParseExpr* body;          /* The function body's list of statements. */
+    uint_fast32_t      arg_count;     /* The number of arguments. */
+    uint_fast32_t      body_len;      /* The length of the function body array. */
 };
