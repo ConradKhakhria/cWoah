@@ -82,7 +82,7 @@ struct WFunction {
     struct WTypedef*   parent_type;
     struct Token**     arg_names;
     struct WType**     arg_types;
-    struct WType       ret_type;
+    struct WType*      ret_type;
     struct WParseExpr* body;
     uint_fast32_t      arg_count;
     uint_fast32_t      body_len;
