@@ -205,9 +205,16 @@ struct WStruct* collect_block_struct(Array tokens_array, int index)
     * - int index: the index of the keyword 'struct' in tokens_array.
     */
     struct WStruct* retstruct = malloc(sizeof(struct WStruct));
-    struct Token**  tokens    = tokens_array->buffer;
+    struct Token**  tokens    = (struct Token **)tokens_array->buffer;
 
     malloc_error(retstruct, COLLECT_BLOCK_STRUCT_STRUCT);
+
+    retstruct->field_names = malloc(sizeof(struct Token *) * 40);
+    retstruct->field_types = malloc(sizeof(struct WType *) * 40);
+    retstruct->field_count = 0;
+
+    malloc_error(retstruct->field_names, COLLECT_BLOCK_STRUCT_FIELD_NAMES);
+    malloc_error(retstruct->field_types, COLLECT_BLOCK_STRUCT_FIELD_TYPES);
 
     if (tokens[index + 1]->token_type == T_NAME) {
         retstruct->struct_name = tokens[index + 1];
@@ -225,13 +232,33 @@ struct WStruct* collect_block_struct(Array tokens_array, int index)
         exit(SYNTAX_ERROR);
     }
 
-    int end_index = traverse_block(
-        tokens_array, index, tokens_array->index,
-        T_OPEN_CURLY_BRKT, T_CLOSE_CURLY_BRKT
-    );
-
     // Gets the struct's fields - lands on a new one each time.
-    while (index < end_index) {
+    while (tokens[index - 1]->token_type != T_CLOSE_CURLY_BRKT) {
+        if (tokens[index]->token_type == T_NEWLINE) {
+            index += 1;
+            continue;
+        }
+
+        // In case there's a lot of fields
+        if (retstruct->field_count > 0 && retstruct->field_count % 40 == 0) {
+            struct Token** new_field_names = realloc(
+                retstruct->field_names,
+                retstruct->field_count + 40
+            );
+
+            struct WType** new_field_types = realloc(
+                retstruct->field_types,
+                retstruct->field_count + 40
+            );
+
+            malloc_error(new_field_names, COLLECT_BLOCK_STRUCT_NAMES_REALLOC);
+            malloc_error(new_field_types, COLLECT_BLOCK_STRUCT_TYPES_REALLOC);
+
+            retstruct->field_names = new_field_names;
+            retstruct->field_types = new_field_types;
+            retstruct->field_count += 40;
+        }
+
         if (tokens[index]->token_type == T_NAME) {
             retstruct->field_names[retstruct->field_count] = tokens[index];
         } else {
@@ -240,11 +267,34 @@ struct WStruct* collect_block_struct(Array tokens_array, int index)
             exit(SYNTAX_ERROR);
         }
 
-        
+        if (tokens[index + 1]->token_type == T_COLON) {
+            index += 2;
+        } else {
+            error_message("Expected type annotation after field name.\n");
+            error_println(tokens[index + 1]->line_no, tokens[index + 1]->col_no);
+            exit(SYNTAX_ERROR);
+        }
 
+        int next_field = index;
+
+        while (tokens[next_field]->token_type != T_COMMA
+        && tokens[next_field]->token_type     != T_CLOSE_CURLY_BRKT) {
+            next_field += 1;
+        }
+
+        retstruct->field_types[retstruct->field_count] = parse_type(
+            tokens_array, index, next_field - 1
+        );
+
+        if (tokens[next_field]->token_type == T_CLOSE_CURLY_BRKT) {
+            break;
+        } else {
+            printf("Currently the token type is %d\n", tokens[next_field]->token_type);
+            index = next_field + 1;
+        }
     }
 
-
+    return retstruct;
 }
 
 int collect_blocks(Array tokens_array, Array* blocks)
@@ -282,6 +332,10 @@ int collect_blocks(Array tokens_array, Array* blocks)
         switch (tokens[index]->token_type) {
             case T_FN:
                 array_add(blocks[0], collect_block_function(tokens_array, index));
+                break;
+
+            case T_STRUCT:
+                array_add(blocks[1], collect_block_struct(tokens_array, index));
                 break;
 
             case T_NEWLINE:
