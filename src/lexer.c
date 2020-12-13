@@ -235,15 +235,15 @@ Array generate_tokens(char* source, int source_len)
                     i++;
                 }
             } else {
-                WSEPRINTMESG("completely unrecognised token '%c'\n", source[i]);
-                WSEPRINTLINE(line_no, col_no);
+                error_message("completely unrecognised token '%c'\n", source[i]);
+                error_println(line_no, col_no);
                 exit(UNRECOGNISED_TOKEN);
             }
 
             if (('a' <= source[i] && source[i] <= 'z')
              || ('A' <= source[i] && source[i] <= 'Z')) {
-                 WSEPRINTMESG("tokens cannot consist of digits followed by letters\n");
-                 WSEPRINTLINE(line_no, col_no);
+                 error_message("tokens cannot consist of digits followed by letters\n");
+                 error_println(line_no, col_no);
                  exit(SYNTAX_ERROR);
              }
         }

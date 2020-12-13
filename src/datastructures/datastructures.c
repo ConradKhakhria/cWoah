@@ -6,13 +6,13 @@ Array make_array()
     /* Allocates and initialises an Array */
     Array retarray = calloc(1, sizeof(struct Array));
 
-    HANDLEMALLOCERR(retarray, MAKE_ARRAY_INIT_STRUCT);
+    malloc_error(retarray, MAKE_ARRAY_INIT_STRUCT);
 
     retarray->buffer     = calloc(ARRAY_BUFFER_SIZE, sizeof(void *));
     retarray->buffer_len = ARRAY_BUFFER_SIZE;
     retarray->index      = 0;
 
-    HANDLEMALLOCERR(retarray->buffer, MAKE_ARRAY_INIT_BUFFER);
+    malloc_error(retarray->buffer, MAKE_ARRAY_INIT_BUFFER);
 
     return retarray;
 }
@@ -34,7 +34,7 @@ void array_add(Array array, void* val)
     if (array->index >= array->buffer_len) {
         void** new_buffer = realloc(array->buffer, array->buffer_len + ARRAY_BUFFER_GROW);
 
-        HANDLEMALLOCERR(new_buffer, ARRAY_ADD_BUFFER_REALLOC);
+        malloc_error(new_buffer, ARRAY_ADD_BUFFER_REALLOC);
 
         array->buffer      = new_buffer;
         array->buffer_len += ARRAY_BUFFER_GROW;
@@ -53,7 +53,7 @@ void* array_index(Array array, int index)
     * in the future so that this error can be recovered from.
     */
     if (index < 0 || array->index < index) {
-        WSEPRINTMESG(
+        error_message(
             "internal error 0x%x - attempt to get %dth index of list length %d\n",
             INDEX_OUT_OF_BOUNDS,
             index,

@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     filename              = get_filename(argc, argv);
     program_source_buffer = calloc(0x10000, sizeof(char));
 
-    HANDLEMALLOCERR(program_source_buffer, MAIN_PROGRAM_SOURCE_BUFFER);
+    malloc_error(program_source_buffer, MAIN_PROGRAM_SOURCE_BUFFER);
 
     int contents_buffer_len = get_file_contents();
     Array tokens = generate_tokens(program_source_buffer, contents_buffer_len);

@@ -1,6 +1,6 @@
 #include "woah_error.h"
 
-void WSEPRINTLINE(int line_no, int col_no)
+void error_println(int line_no, int col_no)
 {
     /* Prints the line and column number of the token that caused an error */
     int i = 0;

@@ -74,22 +74,22 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
     struct WFunction* function = malloc(sizeof(struct WFunction));
     struct Token**    tokens   = (struct Token **)tokens_array->buffer;
 
-    HANDLEMALLOCERR(function, COLLECT_BLOCK_FUNCTION_STRUCT);
+    malloc_error(function, COLLECT_BLOCK_FUNCTION_STRUCT);
 
     function->arg_names = malloc(sizeof(struct Token *) * 10);
     function->arg_types = malloc(sizeof(struct WType *) * 10);
     function->arg_count = 0;
     function->body_len  = 0;
 
-    HANDLEMALLOCERR(function->arg_names, COLLECT_BLOCK_FUNCTION_ARG_NAMES);
-    HANDLEMALLOCERR(function->arg_types, COLLECT_BLOCK_FUNCTION_ARG_TYPES);
+    malloc_error(function->arg_names, COLLECT_BLOCK_FUNCTION_ARG_NAMES);
+    malloc_error(function->arg_types, COLLECT_BLOCK_FUNCTION_ARG_TYPES);
 
     // This gets the function name.
     if (tokens[index + 1]->token_type == T_NAME) {
         // is the function a method?
         if (tokens[index + 2]->token_type == T_FULL_STOP) {
-            WSEPRINTMESG("Function methods aren't implemented yet :(\n");
-            WSEPRINTLINE(tokens[index + 2]->line_no, tokens[index + 2]->col_no);
+            error_message("Function methods aren't implemented yet :(\n");
+            error_println(tokens[index + 2]->line_no, tokens[index + 2]->col_no);
             exit(SYNTAX_ERROR);
 
             index += 5;
@@ -99,15 +99,15 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
             index += 3;
         }
     } else {
-        WSEPRINTMESG("Syntax Error: bad function name\n");
-        WSEPRINTLINE(tokens[index + 1]->line_no, tokens[index + 1]->col_no);
+        error_message("Syntax Error: bad function name\n");
+        error_println(tokens[index + 1]->line_no, tokens[index + 1]->col_no);
         exit(SYNTAX_ERROR);
     }
 
     // This gets the function arguments.
     if (tokens[index - 1]->token_type != T_OPEN_BRKT) {
-        WSEPRINTMESG("Expected a list of arguments after the function name\n");
-        WSEPRINTLINE(tokens[index - 1]->line_no, tokens[index - 1]->col_no);
+        error_message("Expected a list of arguments after the function name\n");
+        error_println(tokens[index - 1]->line_no, tokens[index - 1]->col_no);
         exit(SYNTAX_ERROR);
     }
 
@@ -116,14 +116,14 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
         int type_end = index + 2;
 
         if (tokens[index]->token_type != T_NAME) {
-            WSEPRINTMESG("Expected an argument name.\n");
-            WSEPRINTLINE(tokens[index]->line_no, tokens[index]->col_no);
+            error_message("Expected an argument name.\n");
+            error_println(tokens[index]->line_no, tokens[index]->col_no);
             exit(SYNTAX_ERROR);
         }
 
         if (tokens[index + 1]->token_type != T_COLON) {
-            WSEPRINTMESG("Expected argument type annotation after name\n");
-            WSEPRINTLINE(tokens[index + 1]->line_no, tokens[index + 1]->col_no);
+            error_message("Expected argument type annotation after name\n");
+            error_println(tokens[index + 1]->line_no, tokens[index + 1]->col_no);
             exit(SYNTAX_ERROR);
         }
 
@@ -141,8 +141,8 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
                 function->arg_count + 10
             );
 
-            HANDLEMALLOCERR(new_arg_names, COLLECT_BLOCK_FUNCTION_NAMES_REALLOC);
-            HANDLEMALLOCERR(new_arg_types, COLLECT_BLOCK_FUNCTION_TYPES_REALLOC);
+            malloc_error(new_arg_names, COLLECT_BLOCK_FUNCTION_NAMES_REALLOC);
+            malloc_error(new_arg_types, COLLECT_BLOCK_FUNCTION_TYPES_REALLOC);
 
             function->arg_names = new_arg_names;
             function->arg_types = new_arg_types;
@@ -172,8 +172,8 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
     index += 1;
 
     if (tokens[index]->token_type != T_ARROW) {
-        WSEPRINTMESG("Expected return type.\n");
-        WSEPRINTLINE(tokens[index]->line_no, tokens[index]->col_no);
+        error_message("Expected return type.\n");
+        error_println(tokens[index]->line_no, tokens[index]->col_no);
         exit(SYNTAX_ERROR);
     }
 
@@ -235,8 +235,8 @@ int collect_blocks(Array tokens_array, Array* blocks)
                 continue;   // Skip this token completely.
 
             default:
-                WSEPRINTMESG("Unrecognised syntax in top-level block\n");
-                WSEPRINTLINE(tokens[index]->line_no, tokens[index]->col_no);
+                error_message("Unrecognised syntax in top-level block\n");
+                error_println(tokens[index]->line_no, tokens[index]->col_no);
                 exit(SYNTAX_ERROR);
         }
 
@@ -251,7 +251,7 @@ int collect_blocks(Array tokens_array, Array* blocks)
         );
 
         if (index == -1) {
-            WSEPRINTMESG("Unbalanced brackets in top-level block.\n");
+            error_message("Unbalanced brackets in top-level block.\n");
             exit(SYNTAX_ERROR);
         } else {
             index += 1; // as traverse_block() returns the index of the closing '}'

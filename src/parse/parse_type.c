@@ -24,7 +24,7 @@ struct WType* parse_type(Array tokens_array, int start, int end)
     struct WType* type    = malloc(sizeof(struct WType));
     struct Token** tokens = (struct Token **)tokens_array->buffer;
 
-    HANDLEMALLOCERR(type, TYPE_STRUCT);
+    malloc_error(type, TYPE_STRUCT);
 
     if (start == end && tokens[start]->token_type == T_NAME) {
         type->type_form = TF_ATOMIC;
@@ -43,7 +43,7 @@ struct WType* parse_type(Array tokens_array, int start, int end)
         type->type_form = TF_STRUCT;
         type->derivs    = (struct Token *)tokens[start + 1];
     } else {
-        WSEPRINTMESG("unrecognised syntax in type annotation: token '");
+        error_message("unrecognised syntax in type annotation: token '");
 
         for (int _p_in = tokens[start]->start_i; _p_in < tokens[start]->end_i; _p_in++) {
             fprintf(stderr, "%c", program_source_buffer[_p_in]);
@@ -52,7 +52,7 @@ struct WType* parse_type(Array tokens_array, int start, int end)
         fprintf(stderr, "'\nPerhaps you have unbalanced angle brackets, or " \
                         "are using a keyword as a type name.\n");
 
-        WSEPRINTLINE(tokens[start]->line_no, tokens[start]->col_no);
+        error_println(tokens[start]->line_no, tokens[start]->col_no);
         exit(SYNTAX_ERROR);
     }
 
@@ -85,7 +85,7 @@ void parse_parametric_type(Array tokens_array, struct WType* type, int start, in
     int derivs_index = 0;
     int tokens_index = start;
 
-    HANDLEMALLOCERR(derivs, PARAMETRIC_TYPE_DERIVS);
+    malloc_error(derivs, PARAMETRIC_TYPE_DERIVS);
 
     // each iteration should land on a new parameter.
     while (tokens_index < end) {
