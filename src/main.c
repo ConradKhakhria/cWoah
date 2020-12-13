@@ -34,7 +34,6 @@ char* get_filename(int argc, char *argv[])
     exit(NO_FILE_SUPPLIED);
 }
 
-// Reads the contents of filename into program_source_buffer
 int get_file_contents()
 {
    /* Opens the source file, reads the contents into program_source_buffer
