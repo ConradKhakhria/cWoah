@@ -1,4 +1,4 @@
-#include "parse.h"
+#include "parse_block_collect.h"
 
 int traverse_block(Array prog, int start, int end, int t_open, int t_close)
 {
@@ -177,7 +177,8 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
         exit(SYNTAX_ERROR);
     }
 
-    int function_body_start = index;
+    // So that the case to struct WParseExpr* doesn't complain.
+    uintptr_t function_body_start = index;
 
     while (tokens[function_body_start]->token_type != T_OPEN_CURLY_BRKT) {
         function_body_start += 1;
@@ -191,6 +192,59 @@ struct WFunction* collect_block_function(Array tokens_array, int index)
     // function body into this function.
 
     return function;
+}
+
+struct WStruct* collect_block_struct(Array tokens_array, int index)
+{
+   /* Creates a struct WStruct* from a slice of tokens.
+    *
+    * Parameters
+    * ----------
+    * - Array tokens_array: the program's tokens.
+    * 
+    * - int index: the index of the keyword 'struct' in tokens_array.
+    */
+    struct WStruct* retstruct = malloc(sizeof(struct WStruct));
+    struct Token**  tokens    = tokens_array->buffer;
+
+    malloc_error(retstruct, COLLECT_BLOCK_STRUCT_STRUCT);
+
+    if (tokens[index + 1]->token_type == T_NAME) {
+        retstruct->struct_name = tokens[index + 1];
+    } else {
+        error_message("Expected struct name after keyword 'struct'.\n");
+        error_println(tokens[index + 1]->line_no, tokens[index + 1]->col_no);
+        exit(SYNTAX_ERROR);
+    }
+
+    if (tokens[index + 2]->token_type == T_OPEN_CURLY_BRKT) {
+        index += 3;
+    } else {
+        error_message("Expected a list of fields in struct declaration.\n");
+        error_println(tokens[index + 2]->line_no, tokens[index + 2]->col_no);
+        exit(SYNTAX_ERROR);
+    }
+
+    int end_index = traverse_block(
+        tokens_array, index, tokens_array->index,
+        T_OPEN_CURLY_BRKT, T_CLOSE_CURLY_BRKT
+    );
+
+    // Gets the struct's fields - lands on a new one each time.
+    while (index < end_index) {
+        if (tokens[index]->token_type == T_NAME) {
+            retstruct->field_names[retstruct->field_count] = tokens[index];
+        } else {
+            error_message("Expected field name in struct definition.\n");
+            error_println(tokens[index]->line_no, tokens[index]->col_no);
+            exit(SYNTAX_ERROR);
+        }
+
+        
+
+    }
+
+
 }
 
 int collect_blocks(Array tokens_array, Array* blocks)

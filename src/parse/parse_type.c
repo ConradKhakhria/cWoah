@@ -123,6 +123,9 @@ bool types_equal(struct WType* a, struct WType* b)
     * ----------
     * struct WType* a/b: the types to be compared.
     */
+    struct WType** a_derivs = a->derivs; // This could be entirely wrong.
+    struct WType** b_derivs = b->derivs;
+
     if (a->type_form != b->type_form) {
         return false;
     }
@@ -138,7 +141,7 @@ bool types_equal(struct WType* a, struct WType* b)
             }
 
             for (int i = 0; i < a->num; i++) {
-                if (!types_equal(&(a->derivs[i]), &(b->derivs[i]))) {
+                if (!types_equal(a_derivs[i], b_derivs[i])) {
                     return false;
                 }
             }
