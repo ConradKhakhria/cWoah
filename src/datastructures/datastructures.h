@@ -81,7 +81,7 @@ struct WFunction {
     struct Token*      function_name;
     struct WTypedef*   parent_type;
     struct Token**     arg_names;
-    struct WType*      arg_types;
+    struct WType**     arg_types;
     struct WType       ret_type;
     struct WParseExpr* body;
     uint_fast32_t      arg_count;
