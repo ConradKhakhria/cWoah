@@ -74,26 +74,6 @@ enum TokenType {
     T_NOT,
 };
 
-/*  type form = TF_LIST: T[]
-    - derivs = struct WType: T
-    - num    = junk value
-
-    TF_POINTER: &T
-    - derivs = struct WType: T
-    - num    = junk
-
-    TF_PARAMETRIC: T<x, y, ..>
-    - derivs = struct WType[]: [x, y, ...]
-    - num    = len(derivs)
-
-    TF_STRUCT: struct foo
-    - derivs = (struct Token *)name_token
-    - num    = junk
-
-    TF_ATOMIC: T
-    - derivs = junk
-    - num    = index in the list of types
-*/
 enum TypeForm {
     TF_LIST,        // T[]
     TF_POINTER,     // &T
