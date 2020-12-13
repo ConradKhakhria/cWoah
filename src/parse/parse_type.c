@@ -114,3 +114,45 @@ void parse_parametric_type(Array tokens_array, struct WType* type, int start, in
     type->derivs    = derivs;
     type->num       = derivs_index;
 }
+
+bool types_equal(struct WType* a, struct WType* b)
+{
+   /* Recursively assesses whether two type structs are equal
+    *
+    * Parameters
+    * ----------
+    * struct WType* a/b: the types to be compared.
+    */
+    if (a->type_form != b->type_form) {
+        return false;
+    }
+
+    switch (a->type_form) {
+        case TF_LIST:
+        case TF_POINTER:
+            return types_equal(a->derivs, b->derivs);
+
+        case TF_PARAMETRIC:
+            if (a->num != b->num) {
+                return false;
+            }
+
+            for (int i = 0; i < a->num; i++) {
+                if (!types_equal(&(a->derivs[i]), &(b->derivs[i]))) {
+                    return false;
+                }
+            }
+
+            return true;
+
+        case TF_STRUCT:
+            return types_equal(a->derivs, b->derivs);
+
+        case TF_ATOMIC:
+            return (bool)(a->num == b->num);
+
+        default:
+            error_message("Internal error in function types_equal()\n");
+            exit(-1);
+    }
+}
