@@ -44,27 +44,33 @@ struct Token {
  * type form = TF_LIST: T[]
  *  - derivs = struct WType: T
  *  - num    = junk value
+ *  - name   = "" ""
  *
  *  TF_POINTER: &T
  *  - derivs = struct WType: T
  *  - num    = junk
+ *  - name   = ""  ""
  *
  *  TF_PARAMETRIC: T<x, y, ..>
  *  - derivs = struct WType[]: [x, y, ...]
  *  - num    = len(derivs)
+ *  - name   = token for the name
  *
  *  TF_STRUCT: struct foo
  *  - derivs = (struct Token *)name_token
  *  - num    = junk
+ *  - name   = ""   ""
  *
  *  TF_ATOMIC: T
  *  - derivs = junk
  *  - num    = index in the list of types
+ *  - name   = junk.
  */
 struct WType {
-    int   type_form; /* defined in /src/enums.h */
-    int   num;
-    void* derivs;
+    struct Token* name;
+    int           type_form; /* defined in /src/enums.h */
+    int           num;
+    void*         derivs;
 };
 
 struct WTypedef {
