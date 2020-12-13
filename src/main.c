@@ -92,4 +92,6 @@ int main(int argc, char* argv[]) {
     };
 
     collect_blocks(tokens, blocks);
+
+    printf("I now have %d functions!\n", blocks[0]->index);
 }
