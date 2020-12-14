@@ -2,6 +2,8 @@
  * and associated information, as well as exit codes for various errors.
  */
 
+#pragma once
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -42,4 +44,4 @@ enum ErrorCodes {
 
 void error_println(int line_no, int col_no);
 
-static void print_indent(int indent_size);
+void print_indent(int indent_size);

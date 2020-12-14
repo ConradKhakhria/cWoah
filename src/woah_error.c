@@ -44,7 +44,7 @@ void error_println(int line_no, int col_no)
     fprintf(stderr, "^\n");
 }
 
-static void print_indent(int indent_size)
+void print_indent(int indent_size)
 {
     /* So that the margin of the line being shown is right. */
     for (int i = 0; i < indent_size; i++) {
