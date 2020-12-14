@@ -1,3 +1,8 @@
+/* The functions in here are associated with the front-end of the compiler,
+ * including opening and reading the source files as well as controlling
+ * the flow of objects between the various stages of compilation.
+ */
+
 #include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -94,4 +99,9 @@ int main(int argc, char* argv[]) {
     };
 
     collect_blocks(tokens, blocks);
+
+    struct WStruct* s = blocks[1]->buffer[0];
+
+    print_type(s->field_types[0]);
+    printf("\n");
 }

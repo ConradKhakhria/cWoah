@@ -1,3 +1,7 @@
+/* This file contains functions and macros for displaying error messages
+ * and associated information. 
+ */
+
 #include "woah_error.h"
 
 void error_println(int line_no, int col_no)
@@ -40,7 +44,7 @@ void error_println(int line_no, int col_no)
     fprintf(stderr, "^\n");
 }
 
-void print_indent(int indent_size)
+static void print_indent(int indent_size)
 {
     /* So that the margin of the line being shown is right. */
     for (int i = 0; i < indent_size; i++) {

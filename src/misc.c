@@ -1,3 +1,7 @@
+/* This file contains general utilities that aren't necessary for particular
+ * stages of the compilation process.
+ */
+
 #include "misc.h"
 
 void print_slice(char* array, int start, int end)

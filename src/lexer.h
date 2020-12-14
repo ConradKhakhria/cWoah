@@ -1,3 +1,9 @@
+/* This file contains function headers for tokenising source code.
+ *
+ * These functions use the struct Token*, which is defined in
+ * /src/datastructures/datastructures.h
+ */
+
 #pragma once
 
 #include <errno.h>

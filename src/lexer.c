@@ -1,3 +1,5 @@
+/* This file contains functions for tokenising source code. */
+
 #include "lexer.h"
 
 // Expands to condition for matching a keyword

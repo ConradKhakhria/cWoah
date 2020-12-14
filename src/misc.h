@@ -1,3 +1,7 @@
+/* This file contains general utilities that aren't necessary for particular
+ * stages of the compilation process.
+ */
+
 #pragma once
 
 #include <stdio.h>
