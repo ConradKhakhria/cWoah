@@ -4,7 +4,7 @@ RM=rm
 SRC=src
 INCL= datastructures/datastructures.c lexer.c parse/parse.c \
 			parse/parse_type.c parse/parse_block_collect.c 				\
-			woah_error.c misc.c
+			woah_error.c misc.c init.c
 			
 MAIN=main.c
 TARGET=woah
