@@ -9,3 +9,4 @@
 // (read-only except for in /src/main.c)
 char* program_source_buffer;
 char* filename;
+char* inbuilt_types[19];
