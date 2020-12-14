@@ -35,6 +35,7 @@ void print_type(struct WType* type)
         case TF_POINTER:
             printf("&");
             print_type(type->derivs);
+            break;
 
         case TF_PARAMETRIC:
             print_slice(
@@ -45,7 +46,10 @@ void print_type(struct WType* type)
 
             for (i = 0; i < type->num; i++) {
                 print_type(derivs[i]);
-                printf(", ");
+
+                if (i < type->num - 1) {
+                    printf(", ");
+                }
             }
 
             printf(">");
