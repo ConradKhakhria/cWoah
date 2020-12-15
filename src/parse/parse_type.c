@@ -87,7 +87,8 @@ void parse_parametric_type(Array tokens_array, struct WType* type, int start, in
 
     malloc_error(derivs, PARAMETRIC_TYPE_DERIVS);
 
-    type->name = tokens[start - 2];
+    type->name      = tokens[start - 2];
+    type->type_form = TF_PARAMETRIC;
 
     // each iteration should land on a new parameter.
     while (tokens_index < end) {
@@ -112,7 +113,6 @@ void parse_parametric_type(Array tokens_array, struct WType* type, int start, in
         tokens_index = slice_end + 1;
     }
 
-    type->type_form = TF_PARAMETRIC;
     type->derivs    = derivs;
     type->num       = derivs_index;
 }
