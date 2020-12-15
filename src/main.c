@@ -13,14 +13,15 @@
 #include "constants.h"
 #include "datastructures/datastructures.h"
 #include "enums.h"
+#include "init.h"
 #include "lexer.h"
 #include "misc.h"
 #include "parse/parse.h"
 #include "parse/parse_block_collect.h"
 #include "parse/parse_type.h"
 
-extern char* program_source_buffer;
-extern char* filename;
+char* program_source_buffer;
+char* filename;
 
 char* get_filename(int argc, char *argv[])
 {
@@ -79,6 +80,8 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Woah: error: no files supplied.\n");
         exit(NO_FILE_SUPPLIED);
     }
+
+    get_inbuilt_types();
 
     filename              = get_filename(argc, argv);
     program_source_buffer = calloc(0x10000, sizeof(char));
