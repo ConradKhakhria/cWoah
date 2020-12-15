@@ -9,6 +9,13 @@
 
 #include "./parse/parse_type.h"
 
+#define println_slice(...) do { \
+    print_slice(__VA_ARGS__);   \
+    printf("\n");               \
+} while (0)
+
 void print_slice(char* array, int start, int end);
 
 void print_type(struct WType* type);
+
+// int get_type_index(
