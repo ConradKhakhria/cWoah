@@ -18,7 +18,7 @@
 // Prints the details of an error before the erroneous line is printed
 // with error_println()
 #define error_message(...) do {                                         \
-    fprintf(stderr, "Woah: Syntax Error in file '%s'\n=> ", filename);  \
+    fprintf(stderr, "Woah: Error in file '%s'\n=> ", filename);  \
     fprintf(stderr, __VA_ARGS__);                                       \
 } while (0)
 
