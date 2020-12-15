@@ -18,6 +18,28 @@
 #include "enums.h"
 #include "woah_error.h"
 
+// Expands to condition for matching a keyword
+#define match_word_token(_STR, _LEN, _TOK)                  \
+    else if (!strncmp(_STR, &source[token_start], _LEN)) {  \
+                state->token->token_type = _TOK;            \
+    }                                                       \
+
+// Expands to match a single character symbol in tokenise_sym()
+#define match_sym(_CHAR, _TOKEN_TYPE_NAME)          \
+    case _CHAR:                                     \
+        state->token->token_type = _TOKEN_TYPE_NAME;\
+        break
+
+
+// Checks if _CHAR is in [_A, _B]
+#define char_match2(_CHAR, _A, _B)     (_CHAR == _A || _CHAR == _B)
+
+// Checks if _CHAR is in [_A, _B, _C]
+#define char_match3(_CHAR, _A, _B, _C) (_CHAR == _A || _CHAR == _B || _CHAR == _C)
+
+// Checks if _A <= _CHAR <= _B
+#define char_range(_A, _CHAR, _B) (_A <= _CHAR && _CHAR <= _B)
+
 Array generate_tokens(char* source, int source_len);
 
 int eq_type(char* source, int index);
