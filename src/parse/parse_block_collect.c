@@ -1,3 +1,10 @@
+/* These functions collect the program's top-level blocks (functions,
+ * structs, imports, module declarations, etc) for the Array blocks[5]
+ * defined in /src/main.c . This allows actual parsing to focus on the
+ * internal logic of each function as well as allowing functions to call
+ * others defined later in the same program. 
+ */
+
 #include "parse_block_collect.h"
 
 int traverse_block(Array prog, int start, int end, int t_open, int t_close)

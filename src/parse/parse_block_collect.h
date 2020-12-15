@@ -1,4 +1,9 @@
-/* This links all of the parsing stuff together */
+/* These functions collect the program's top-level blocks (functions,
+ * structs, imports, module declarations, etc) for the Array blocks[5]
+ * defined in /src/main.c . All structures used are defined in
+ * /src/datastructures/datastructures.h .
+ */
+
 #pragma once
 
 #include "../datastructures/datastructures.h"
