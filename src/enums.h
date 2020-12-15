@@ -16,7 +16,7 @@ enum TokenType {
     T_SEMICOLON,        // ;
     T_AMPERSAND,        // &
     T_AT_SYM,           // @
-    T_EQUALS,           // =
+    T_SGL_EQUALS,       // =
     T_LT,               // <
     T_GT,               // >
     T_FWD_SLASH,        // /
@@ -28,7 +28,7 @@ enum TokenType {
     T_SGL_QUOT,         // '
 
     // Operators
-    T_EQ,               // ==
+    T_DBL_EQUALS,       // ==
     T_INEQ,             // !=
     T_LEQ,              // <=
     T_GEQ,              // >=
@@ -87,6 +87,7 @@ enum MallocErrorCodes {
     MAKE_ARRAY_INIT_STRUCT,
     MAKE_ARRAY_INIT_BUFFER,
     ARRAY_ADD_BUFFER_REALLOC,
+    LEXER_ALLOC_TOKEN,
     PARAMETRIC_TYPE_DERIVS,
     TYPE_STRUCT,
     COLLECT_BLOCK_FUNCTION_STRUCT,
