@@ -95,10 +95,10 @@ int main(int argc, char* argv[]) {
     // defined in /src/parse/parse.c
     Array blocks[5] = { 
         make_array(),   /* functions */
-        make_array(),   /* structs */
-        make_array(),   /* types  */
-        make_array(),   /* module */
-        make_array()    /* globals */
+        make_array(),   /* structs   */
+        make_array(),   /* types     */
+        make_array(),   /* module    */
+        make_array()    /* globals   */
     };
 
     collect_blocks(tokens, blocks);
