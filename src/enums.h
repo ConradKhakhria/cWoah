@@ -50,28 +50,29 @@ enum TokenType {
     // Names
     T_NAME,             // [a-zA-Z_][a-zA-Z0-9_]*
 
-    // Keywords (all of the following are just the name but in lower case)
-    T_FN,
-    T_STRUCT,
-    T_USE,
-    T_MACRO,
-    T_GLOBALS,
-    T_WHILE,
-    T_FOR,
-    T_IF,
+    // Keywords (all of the following are just the name but in upper case)
+    T_AND,
     T_ELIF,
     T_ELSE,
-    T_IN,
-    T_SELF,
-    T_RETURN,
-    T_STACK,
-    T_HEAP,
-    T_AND,
-    T_OR,
-    T_XOR,
-    T_TRUE,
     T_FALSE,
+    T_FN,
+    T_FOR,
+    T_GLOBALS,
+    T_HEAP,
+    T_IF,
+    T_IN,
+    T_MACRO,
     T_NOT,
+    T_OR,
+    T_RETURN,
+    T_SELF,
+    T_STACK,
+    T_STRUCT,
+    T_TRUE,
+    T_TYPE,
+    T_USE,
+    T_WHILE,
+    T_XOR
 };
 
 enum TypeForm {
