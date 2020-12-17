@@ -67,7 +67,7 @@ void print_type(struct WType* type)
             break;
 
         case TF_ATOMIC:
-            printf("[LIST OF TYPES NOT YET IMPLEMENTED]");
+            printf("%s", inbuilt_types[type->num]);
             break;
 
         default: // This should never happen
