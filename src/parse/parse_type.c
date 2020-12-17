@@ -28,7 +28,7 @@ struct WType* parse_type(Array tokens_array, int start, int end)
 
     if (start == end && tokens[start]->token_type == T_NAME) {
         type->type_form = TF_ATOMIC;
-        type->num       = 42; // Will implement later.
+        type->num       = get_atomic_type(tokens[start]);
     } else if (tokens[end - 1]->token_type == T_OPEN_SQ_BRKT
       && tokens[end]->token_type == T_CLOSE_SQ_BRKT) {
         type->type_form = TF_LIST;
@@ -160,4 +160,27 @@ bool types_equal(struct WType* a, struct WType* b)
             error_message("Internal error in function types_equal()\n");
             exit(-1);
     }
+}
+
+int get_atomic_type(struct Token* token)
+{
+    char blank_string[1000];
+
+    for (int i = 0; i < INBUILT_TYPES_COUNT; i++) {
+        memset(blank_string, 0, 1000);
+
+        memcpy(
+            blank_string,
+            &program_source_buffer[token->start_i],
+            token->end_i - token->start_i
+        );
+
+        if (!strcmp(blank_string, inbuilt_types[i])) {
+            return i;
+        }
+    }
+
+    error_message("unrecognised type.\n");
+    error_println(token->line_no, token->col_no);
+    exit(-SYNTAX_ERROR);
 }
