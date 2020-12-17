@@ -15,3 +15,5 @@ struct WType* parse_type(Array tokens_array, int start, int end);
 void parse_parametric_type(Array tokens_array, struct WType* type, int start, int end);
 
 bool types_equal(struct WType* a, struct WType* b);
+
+int get_atomic_type(struct Token* token);
