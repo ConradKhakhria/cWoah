@@ -4,7 +4,7 @@
 
 #include "misc.h"
 
-void print_slice(char* array, int start, int end)
+void fprint_slice(FILE* fd, char* array, int start, int end)
 {
    /* Prints a slice of a string between start and end.
     *
@@ -19,11 +19,11 @@ void print_slice(char* array, int start, int end)
     * Modifies nothing.
     */
     for (int i = start; i < end; i++) {
-        printf("%c", array[i]);
+        fprintf(fd, "%c", array[i]);
     }
 }
 
-void print_type(struct WType* type)
+void fprint_type(FILE* fd, struct WType* type)
 {
     /* Displays a type annotation. */
     struct WType** derivs     = type->derivs;
@@ -32,42 +32,49 @@ void print_type(struct WType* type)
 
     switch (type->type_form) {
         case TF_LIST:
-            print_type(type->derivs);
-            printf("[]");
+            fprint_type(fd, type->derivs);
+            fprintf(fd, "[]");
             break;
 
         case TF_POINTER:
-            printf("&");
-            print_type(type->derivs);
+            fprintf(fd, "&");
+            fprint_type(fd, type->derivs);
             break;
 
         case TF_PARAMETRIC:
-            print_slice(
-                program_source_buffer, type->name->start_i, type->name->end_i
+            fprint_slice(
+                fd,
+                program_source_buffer,
+                type->name->start_i,
+                type->name->end_i
             );
 
-            printf("<");
+            fprintf(fd, "<");
 
             for (i = 0; i < type->num; i++) {
-                print_type(derivs[i]);
+                fprint_type(fd, derivs[i]);
 
                 if (i < type->num - 1) {
-                    printf(", ");
+                    fprintf(fd, ", ");
                 }
             }
 
-            printf(">");
+            fprintf(fd, ">");
             break;
 
         case TF_STRUCT:
-            printf("struct ");
-            print_slice(
-                program_source_buffer, struct_name->start_i, struct_name->end_i
+            fprintf(fd, "struct ");
+            fprint_slice(
+                fd,
+                program_source_buffer,
+                struct_name->start_i,
+                struct_name->end_i
             );
+
             break;
 
         case TF_ATOMIC:
-            printf("%s", inbuilt_types[type->num]);
+            fprintf(fd, "%s", inbuilt_types[type->num]);
             break;
 
         default: // This should never happen
