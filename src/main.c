@@ -93,18 +93,14 @@ int main(int argc, char* argv[]) {
 
     // Blocks defined in the file and in imports. Modified by collect_blocks()
     // defined in /src/parse/parse.c
-    Array blocks[5] = { 
+    Array blocks[6] = { 
         make_array(),   /* functions */
         make_array(),   /* structs   */
         make_array(),   /* types     */
-        make_array(),   /* module    */
+        make_array(),   /* imports   */
+        make_array(),   /* exports   */
         make_array()    /* globals   */
     };
 
     collect_blocks(tokens, blocks);
-
-    struct WStruct* s = blocks[1]->buffer[0];
-
-    print_type(s->field_types[0]);
-    printf("\n");
 }
