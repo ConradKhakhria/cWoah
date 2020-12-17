@@ -65,16 +65,6 @@ int get_file_contents()
     return i;
 }
 
-void printn(char* array, int start, int end)
-{
-    /* Prints a string between start and end */
-    for (; start < end; start++) {
-        printf("%c", array[start]);
-    }
-
-    printf("'\n");
-}
-
 int main(int argc, char* argv[]) {
     if (argc < 2) {
         fprintf(stderr, "Woah: error: no files supplied.\n");
