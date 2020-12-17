@@ -37,7 +37,7 @@ void get_inbuilt_types()
     int slice_start = 0;
     int slice_end;
 
-    for (int i = 0; i < 18; i++) {
+    for (int i = 0; i < INBUILT_TYPES_COUNT - 1; i++) {
         slice_end = slice_start;
 
         while (type_string[slice_end] != '\x0a') {
