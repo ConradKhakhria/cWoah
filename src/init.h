@@ -10,6 +10,4 @@
 
 #include "constants.h"
 
-#define INBUILT_TYPES_COUNT 19
-
 void get_inbuilt_types();
