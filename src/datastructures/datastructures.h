@@ -73,8 +73,18 @@ struct WType {
     void*         derivs;
 };
 
+/* Top level parsing structures */
+
 struct WTypedef {
-    
+    struct Token* typedef_name;     /* The name of the defined type. */
+    struct WType* type_definition;  /* The contents of the defined type. */
+};
+
+struct WModuleImport {
+    struct Token*  import_name;      /* The name of the imported module. */
+    struct Token** imported_fields;  /* What specifically has been imported. */
+    uint_fast32_t  import_type;      /* How the module has been imported. */
+    uint_fast32_t  fields_count;     /* The number of fields */
 };
 
 struct WFunction {
@@ -93,4 +103,10 @@ struct WStruct {
     struct Token** field_names; /* Names of the struct's fields. */
     struct WType** field_types; /* Types of the struct's fields. */
     uint_fast32_t  field_count; /* The number of fields the struct has. */
+};
+
+struct WGlobals {
+    struct Token** variable_names; /* Names of the global variables  */
+    struct WType** variable_types; /* Types of the global variables  */
+    uint_fast32_t  variable_count; /* The number of global variables */
 };
