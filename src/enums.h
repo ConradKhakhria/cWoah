@@ -24,8 +24,8 @@ enum TokenType {
     T_PLUS,             // +
     T_MINUS,            // -
     T_ASTERISK,         // *
-    T_DBL_QUOT,         // "
-    T_SGL_QUOT,         // '
+    T_DBL_QUOT_STRING,  // ".*?"
+    T_SGL_QUOT_STRING,  // '.*?'
 
     // Operators
     T_DBL_EQUALS,       // ==
@@ -50,6 +50,27 @@ enum TokenType {
     // Names
     T_NAME,             // [a-zA-Z_][a-zA-Z0-9_]*
 
+    // Type names
+    T_i8,
+    T_i16,
+    T_i32,
+    T_i64,
+    T_i128,
+    T_int,
+    T_u8,
+    T_u16,
+    T_u32,
+    T_u64,
+    T_u128,
+    T_uint,
+    T_f8,
+    T_f16,
+    T_f32,
+    T_f64,
+    T_f128,
+    T_float,
+    T_char,
+
     // Keywords (all of the following are just the name but in upper case)
     T_AND,
     T_ELIF,
@@ -62,7 +83,9 @@ enum TokenType {
     T_IF,
     T_IN,
     T_MACRO,
+    T_NONE,
     T_NOT,
+    T_NULL,
     T_OR,
     T_RETURN,
     T_SELF,
@@ -107,6 +130,7 @@ enum MallocErrorCodes {
     COLLECT_BLOCK_STRUCT_FIELD_TYPES,
     COLLECT_BLOCK_STRUCT_NAMES_REALLOC,
     COLLECT_BLOCK_STRUCT_TYPES_REALLOC,
+    COLLECT_BLOCK_TYPEDEF_STRUCT,
     COLLECT_BLOCK_IMPORT_STRUCT,
     COLLECT_BLOCK_IMPORT_LIST_ALLOC,
     COLLECT_BLOCK_GLOBALS_STRUCT,
