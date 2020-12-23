@@ -63,8 +63,8 @@ struct Token {
  *
  *  TF_ATOMIC: T
  *  - derivs = junk
- *  - num    = index in the list of types
- *  - name   = junk.
+ *  - num    = numeric TokenType value
+ *  - name   = if num is a built-in type, junk. Otherwise, the token's name.
  */
 struct WType {
     struct Token* name;
@@ -77,7 +77,8 @@ struct WType {
 
 struct WTypedef {
     struct Token* typedef_name;     /* The name of the defined type. */
-    struct WType* type_definition;  /* The contents of the defined type. */
+    void*         type_definition;  /* The contents of the defined type. */
+    bool          is_struct;        /* Is type_definition a struct */
 };
 
 struct WModuleImport {
