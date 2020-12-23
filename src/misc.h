@@ -10,8 +10,8 @@
 #include "./parse/parse_type.h"
 
 #define fprintln_slice(__FD, __ARRAY, __START, __END) do {  \
-    print_slice(__FD, __ARRAY, __START, __END);             \
-    printf("\n");                                           \
+    fprint_slice(__FD, __ARRAY, __START, __END);            \
+    fprintf(__FD, "\n");                                    \
 } while (0)
 
 void fprint_slice(FILE* fd, char* array, int start, int end);
