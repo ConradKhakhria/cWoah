@@ -74,8 +74,16 @@ void fprint_type(FILE* fd, struct WType* type)
             break;
 
         case TF_ATOMIC:
-            fprintf(fd, "%s", inbuilt_types[type->num]);
-            break;
+            if (type->num == T_NAME) {
+                fprint_slice(
+                    fd,
+                    program_source_buffer,
+                    type->name->start_i,
+                    type->name->end_i
+                );
+            } else {
+                printf("%s", keywords[type->num - T_i8]);
+            }
 
         default: // This should never happen
             error_message("Unexpected internal error in print_type()\n");
