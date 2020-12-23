@@ -182,29 +182,51 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
         state->index += 1;
     }
 
-    if (!strncmp("fn ", &source[token_start], 3))
+    if (state->index - token_start == 2
+    && !strncmp(&source[token_start], "fn", 2))
         state->token->token_type = T_FN;
-    match_word_token("and ",     4, T_AND)
-    match_word_token("elif ",    5, T_ELIF)
-    match_word_token("else ",    5, T_ELSE)
-    match_word_token("false ",   6, T_FALSE)
-    match_word_token("for ",     4, T_FOR)
-    match_word_token("globals ", 8, T_GLOBALS)
-    match_word_token("heap ",    5, T_HEAP)
-    match_word_token("if ",      3, T_IF)
-    match_word_token("in ",      3, T_IN)
-    match_word_token("macro ",   6, T_MACRO)
-    match_word_token("not ",     4, T_NOT)
-    match_word_token("or ",      3, T_OR)
-    match_word_token("return ",  7, T_RETURN)
-    match_word_token("self ",    5, T_SELF)
-    match_word_token("stack ",   6, T_STACK)
-    match_word_token("struct ",  7, T_STRUCT)
-    match_word_token("true ",    5, T_TRUE)
-    match_word_token("type ",    5, T_TYPE)
-    match_word_token("use ",     4, T_USE)
-    match_word_token("while ",   6, T_WHILE)
-    match_word_token("xor ",     4, T_XOR)
+    match_word_token("i8",      2, T_i8)
+    match_word_token("i16",     3, T_i16)
+    match_word_token("i32",     3, T_i32)
+    match_word_token("i64",     3, T_i64)
+    match_word_token("i128",    4, T_i128)
+    match_word_token("int",     3, T_int)
+    match_word_token("i8",      2, T_u8)
+    match_word_token("i16",     3, T_u16)
+    match_word_token("i32",     3, T_u32)
+    match_word_token("i64",     3, T_u64)
+    match_word_token("i128",    4, T_u128)
+    match_word_token("int",     3, T_uint)
+    match_word_token("i8",      2, T_f8)
+    match_word_token("i16",     3, T_f16)
+    match_word_token("i32",     3, T_f32)
+    match_word_token("i64",     3, T_f64)
+    match_word_token("i128",    4, T_f128)
+    match_word_token("int",     3, T_float)
+    match_word_token("char",    4, T_char)
+    match_word_token("and",     3, T_AND)
+    match_word_token("elif",    4, T_ELIF)
+    match_word_token("else",    4, T_ELSE)
+    match_word_token("false",   5, T_FALSE)
+    match_word_token("for",     3, T_FOR)
+    match_word_token("globals", 7, T_GLOBALS)
+    match_word_token("heap",    4, T_HEAP)
+    match_word_token("if",      2, T_IF)
+    match_word_token("in",      2, T_IN)
+    match_word_token("macro",   5, T_MACRO)
+    match_word_token("none",    4, T_NONE)
+    match_word_token("not",     3, T_NOT)
+    match_word_token("null",    4, T_NULL)
+    match_word_token("or",      2, T_OR)
+    match_word_token("return",  6, T_RETURN)
+    match_word_token("self",    4, T_SELF)
+    match_word_token("stack",   5, T_STACK)
+    match_word_token("struct",  6, T_STRUCT)
+    match_word_token("true",    4, T_TRUE)
+    match_word_token("type",    4, T_TYPE)
+    match_word_token("use",     3, T_USE)
+    match_word_token("while",   5, T_WHILE)
+    match_word_token("xor",     3, T_XOR)
     else
         state->token->token_type = T_NAME;
 
@@ -241,8 +263,43 @@ bool tokenise_sym(char* source, int source_len, struct LexerState* state)
         match_sym(';',  T_SEMICOLON);
         match_sym('&',  T_AMPERSAND);
         match_sym('@',  T_AT_SYM);
-        match_sym('"',  T_DBL_QUOT);
-        match_sym('\'', T_SGL_QUOT);
+
+        case '"':
+            state->token->token_type = T_DBL_QUOT_STRING;
+            state->index += 1;
+
+            while(source[state->index] != '"') {
+                if (state->index + 1 >= source_len) {
+                    error_message("Unclosed string.\n");
+                    error_println(state->token->line_no, state->token->col_no);
+                    exit(-SYNTAX_ERROR);
+                } else {
+                    state->index += 1;
+                }
+            }
+
+            state->token->end_i = state->index;
+
+            break;
+
+        case '\'':
+            state->token->token_type = T_SGL_QUOT_STRING;
+            state->index += 1;
+
+            while(source[state->index] != '\'') {
+                if (state->index + 1 >= source_len) {
+                    error_message("Unclosed string.\n");
+                    error_println(state->token->line_no, state->token->col_no);
+                    exit(-SYNTAX_ERROR);
+                } else {
+                    state->index += 1;
+                }
+            }
+
+            state->token->end_i = state->index;
+            state->index       += 1;
+
+            break;
 
         case '=':
             if (source[state->index + 1] == '=') {
