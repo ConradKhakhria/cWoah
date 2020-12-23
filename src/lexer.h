@@ -19,10 +19,11 @@
 #include "woah_error.h"
 
 // Expands to condition for matching a keyword
-#define match_word_token(_STR, _LEN, _TOK)                  \
-    else if (!strncmp(_STR, &source[token_start], _LEN)) {  \
-                state->token->token_type = _TOK;            \
-    }                                                       \
+#define match_word_token(_STR, _LEN, _TOK)              \
+    else if (state->index - token_start == _LEN         \
+    && !strncmp(&source[token_start], _STR, _LEN)) {    \
+        state->token->token_type = _TOK;                \
+    }       
 
 // Expands to match a single character symbol in tokenise_sym()
 #define match_sym(_CHAR, _TOKEN_TYPE_NAME)          \
