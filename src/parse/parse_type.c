@@ -26,9 +26,19 @@ struct WType* parse_type(Array tokens_array, int start, int end)
 
     malloc_error(type, TYPE_STRUCT);
 
-    if (start == end && tokens[start]->token_type == T_NAME) {
+    if (start == end) {
         type->type_form = TF_ATOMIC;
-        type->num       = get_atomic_type(tokens[start]);
+
+        if (T_i8 <= tokens[start]->token_type && tokens[start]->token_type <= T_char) {
+            type->num = tokens[start]->token_type;
+        } else if (tokens[start]->token_type == T_NAME) {
+            type->num  = T_NAME;
+            type->name = tokens[start];
+        } else {
+            error_message("Expected type name.\n");
+            error_println(tokens[start]->line_no, tokens[start]->col_no);
+            exit(-SYNTAX_ERROR);
+        }
     } else if (tokens[end - 1]->token_type == T_OPEN_SQ_BRKT
       && tokens[end]->token_type == T_CLOSE_SQ_BRKT) {
         type->type_form = TF_LIST;
@@ -175,12 +185,10 @@ int get_atomic_type(struct Token* token)
             token->end_i - token->start_i
         );
 
-        if (!strcmp(blank_string, inbuilt_types[i])) {
+        if (!strcmp(blank_string, keywords[i])) {
             return i;
         }
     }
 
-    error_message("unrecognised type.\n");
-    error_println(token->line_no, token->col_no);
-    exit(-SYNTAX_ERROR);
+    return -1;
 }
