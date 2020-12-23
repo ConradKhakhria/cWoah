@@ -10,4 +10,4 @@
 
 #include "constants.h"
 
-void get_inbuilt_types();
+void get_keywords();
