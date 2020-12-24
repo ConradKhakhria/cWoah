@@ -26,6 +26,11 @@ void fprint_slice(FILE* fd, char* array, int start, int end)
 void fprint_type(FILE* fd, struct WType* type)
 {
     /* Displays a type annotation. */
+    if (type == NULL) {
+        fprintf(fd, "none");
+        return;
+    }
+
     struct WType** derivs     = type->derivs;
     struct Token* struct_name = type->derivs;
     int i;
@@ -82,8 +87,11 @@ void fprint_type(FILE* fd, struct WType* type)
                     type->name->end_i
                 );
             } else {
-                printf("%s", keywords[type->num - T_i8]);
+                fprintf(fd, "%s", keywords[type->num - T_bool]);
+                fflush(stdout);
             }
+
+            break;
 
         default: // This should never happen
             error_message("Unexpected internal error in print_type()\n");
