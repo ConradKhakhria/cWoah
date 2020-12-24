@@ -78,7 +78,6 @@ struct WType {
 struct WTypedef {
     struct Token* typedef_name;     /* The name of the defined type. */
     void*         type_definition;  /* The contents of the defined type. */
-    bool          is_struct;        /* Is type_definition a struct */
 };
 
 struct WModuleImport {
