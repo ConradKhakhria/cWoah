@@ -1,6 +1,6 @@
 module PrimeSieve (    // Define a module to export
     sieve
-);
+)
 
 @(Integral T)
 fn sieve(lim: T) -> Array<T> {
@@ -27,5 +27,3 @@ fn sieve(lim: T) -> Array<T> {
 
     return primes;
 }
-
-
