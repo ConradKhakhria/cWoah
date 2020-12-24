@@ -51,6 +51,7 @@ enum TokenType {
     T_NAME,             // [a-zA-Z_][a-zA-Z0-9_]*
 
     // Type names
+    T_bool,
     T_i8,
     T_i16,
     T_i32,
