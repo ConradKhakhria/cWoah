@@ -7,6 +7,7 @@
 
 // This string contains the names of all built-in types.
 static char keyword_string[1000] = \
+    "bool"    "\x0a"\
     // signed integers
     "i8"      "\x0a"\
     "i16"     "\x0a"\
