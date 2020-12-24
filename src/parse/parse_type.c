@@ -29,7 +29,7 @@ struct WType* parse_type(Array tokens_array, int start, int end)
     if (start == end) {
         type->type_form = TF_ATOMIC;
 
-        if (T_i8 <= tokens[start]->token_type && tokens[start]->token_type <= T_char) {
+        if (T_bool <= tokens[start]->token_type && tokens[start]->token_type <= T_char) {
             type->num = tokens[start]->token_type;
         } else if (tokens[start]->token_type == T_NAME) {
             type->num  = T_NAME;
