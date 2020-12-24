@@ -185,6 +185,7 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
     if (state->index - token_start == 2
     && !strncmp(&source[token_start], "fn", 2))
         state->token->token_type = T_FN;
+    match_word_token("bool",    4, T_bool)
     match_word_token("i8",      2, T_i8)
     match_word_token("i16",     3, T_i16)
     match_word_token("i32",     3, T_i32)
