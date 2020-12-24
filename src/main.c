@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
         exit(NO_FILE_SUPPLIED);
     }
 
-    get_inbuilt_types();
+    get_keywords();
 
     filename              = get_filename(argc, argv);
     program_source_buffer = calloc(0x10000, sizeof(char));
@@ -93,4 +93,12 @@ int main(int argc, char* argv[]) {
     };
 
     collect_blocks(tokens, blocks);
+
+    // I'm not going to implement typedefs yet.
+    if (blocks[2]->index > 0) {
+        error_message("Type definitions haven't been implemented yet.\n");
+        exit(-2);
+    }
+
+    
 }
