@@ -19,7 +19,7 @@ fn quicksort(xs: Array<T>) -> Array<T> {
 
     // Chained methods are entirely legal as long as the method returns the value
     // which is transformed by the next method.
-    return quicksort(lower).append(xs[0]).concat(upper);
+    return quicksort(lower).append(xs[0]).concat(quicksort(upper));
 }
 
 @(Ord T)
