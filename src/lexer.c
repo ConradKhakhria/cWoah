@@ -379,6 +379,16 @@ bool tokenise_sym(char* source, int source_len, struct LexerState* state)
 
             break;
 
+        case '!':
+            if (source[state->index + 1] == '=') {
+                state->token->token_type = T_INEQ;
+                state->index += 1;
+            } else {
+                error_message("Unrecognised token.\n");
+                error_println(state->line_no, state->col_no);
+                exit(-1);
+            }
+
         default:
             return false;
     }
