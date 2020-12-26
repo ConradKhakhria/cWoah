@@ -353,6 +353,18 @@ struct WStruct* collect_block_struct(Array tokens_array, int* index)
 
 struct WTypedef* collect_block_typedef(Array tokens_array, int* index)
 {
+   /* Creates a struct WTypedef* from a slice of tokens.
+    *
+    * Parameters
+    * ----------
+    * - Array tokens_array: the program's tokens.
+    * 
+    * - int index: the index of the keyword 'type' in tokens_array.
+    * 
+    * Modifies
+    * --------
+    * int* index goes to the next top-level block.
+    */
     struct WTypedef* ret_typedef = malloc(sizeof(struct WTypedef));
     struct Token** tokens = (struct Token **)tokens_array->buffer;
 
@@ -375,27 +387,14 @@ struct WTypedef* collect_block_typedef(Array tokens_array, int* index)
         exit(-SYNTAX_ERROR);
     }
 
-    if (tokens[*index]->token_type == T_STRUCT) {
-        ret_typedef->is_struct       = true;
-        ret_typedef->type_definition = collect_block_struct(tokens_array, index);
+    int typedef_end = *index;
 
-        return ret_typedef;
-    } else {
-        int type_annotation_end = *index;
-        ret_typedef->is_struct  = false;
-
-        while (tokens[type_annotation_end]->token_type != T_SEMICOLON) {
-            if (type_annotation_end + 1 >= tokens_array->buffer_len) {
-                error_message("Missing semicolon in type definition.\n");
-                error_println(tokens[*index]->line_no, tokens[*index]->col_no);
-                exit(-SYNTAX_ERROR);
-            } else {
-                type_annotation_end += 1;
-            }
-        }
-
-        ret_typedef->type_definition = parse_type(tokens_array, *index, type_annotation_end - 1);
+    while (tokens[typedef_end]->token_type != T_SEMICOLON) {
+        typedef_end += 1;
     }
+
+    ret_typedef->type_definition = parse_type(tokens_array, *index, typedef_end - 1);
+    *index = typedef_end + 1;
 
     return ret_typedef;
 }
