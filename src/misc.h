@@ -18,4 +18,8 @@ void fprint_slice(FILE* fd, char* array, int start, int end);
 
 void fprint_type(FILE* fd, struct WType* type);
 
-// int get_type_index(
+int get_szbits(struct WType* type, Array* blocks);
+
+int get_szbytes(struct WType* type, Array* blocks);
+
+int get_szwords(struct WType* type, Array* blocks);
