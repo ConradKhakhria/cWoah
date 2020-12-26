@@ -84,21 +84,38 @@ int main(int argc, char* argv[]) {
     // Blocks defined in the file and in imports. Modified by collect_blocks()
     // defined in /src/parse/parse.c
     Array blocks[6] = { 
-        make_array(),   /* functions */
-        make_array(),   /* structs   */
-        make_array(),   /* types     */
-        make_array(),   /* imports   */
-        make_array(),   /* exports   */
-        make_array()    /* globals   */
+        make_array(), /* functions */
+        make_array(), /* structs   */
+        make_array(), /* types     */
+        make_array(), /* imports   */
+        make_array(), /* exports   */
+        make_array()  /* globals   */
     };
 
     collect_blocks(tokens, blocks);
 
-    // I'm not going to implement typedefs yet.
-    if (blocks[2]->index > 0) {
-        error_message("Type definitions haven't been implemented yet.\n");
-        exit(-2);
-    }
+    // Currently I'm only going to implement functions, structs and globals.
+    // This block will only exist until these features exist.
+    {
+        bool implemented_error = false;
 
-    
+        if (blocks[2]->index > 0) {
+            error_message("Type definitions haven't been implemented yet.\n");
+            implemented_error = true;
+        }
+
+        if (blocks[3]->index > 0) {
+            error_message("Module imports haven't been implemented yet.\n");
+            implemented_error = true;
+        }
+
+        if (blocks[4]->index > 0) {
+            error_message("Module declaration and export hasn't been implemented yet.\n");
+            implemented_error = true;
+        }
+
+        if (implemented_error) {
+            exit(-1);
+        }
+    }
 }
