@@ -6,6 +6,7 @@
 #define TOKENS_ARRAY_SIZE   0x1000
 #define INBUILT_TYPES_COUNT 19
 #define KEYWORD_COUNT       43
+#define WORD_SIZE_BYTES     8 // Of course this is architecture dependent
 
 // These are here so that they can be used globally throughout the program
 // (read-only except for in /src/main.c)
