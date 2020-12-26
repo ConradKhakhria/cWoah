@@ -110,3 +110,64 @@ struct WGlobals {
     struct WType** variable_types; /* Types of the global variables  */
     uint_fast32_t  variable_count; /* The number of global variables */
 };
+
+/* Parsing statements within a function */
+
+// Nested expressions
+
+struct FunctionCall {
+    struct WFunction* function;
+    void** argument_exprs;
+};
+
+struct MathExpr {
+    uint_fast32_t type;
+    union expression {
+        struct Token*    atom;    /* Variable name or numeric literal */
+        struct MathExpr* derivs;  /* Elements of a nested expression */
+        struct FunctionCall call; /* For if it's a function call */
+    };
+};
+
+struct BoolExpr {
+    uint_fast32_t type;
+    union expression {
+        struct Token*    atom;    /* Variable name or numeric literal */
+        struct BoolExpr* derivs;  /* Elements of a nested expression */
+        struct FunctionCall call; /* For if it's a function call */
+    };
+};
+
+struct VarDeclare {
+    struct Token* var_name; /* The name of the declared variable */
+    struct WType* var_type; /* The type of the declared variable */
+    void* var_definition;   /* The variable's value (NULL if not assigned) */
+};
+
+struct VarAssign {
+    struct Token* var_name; /* The name of the variable being assigned. */
+    void* var_new_value;    /* The variable's new value. */
+};
+
+struct IfStatement {
+    uint_fast32_t type; /* Whether it's "if", "elif" or "else" */
+};
+
+struct ForLoop {
+
+};
+
+struct WhileLoop {
+
+};
+
+struct WParseExpr {
+    int expression_type;
+    union expression {
+        struct VarDeclare;
+        struct VarAssign;
+        struct IfStatement;
+        struct ForLoop;
+        struct WhileLoop;
+    };
+};
