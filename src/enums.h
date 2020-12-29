@@ -99,19 +99,6 @@ enum TokenType {
     T_XOR
 };
 
-enum TypeForm {
-    TF_LIST,        // T[]
-    TF_POINTER,     // &T
-    TF_PARAMETRIC,  // T<x, y, ...>
-    TF_STRUCT,      // struct foo
-    TF_ATOMIC,      // T
-};
-
-enum ModuleImportType {
-    MT_QUALIFIED,
-    MT_SPECIFIC,
-    MT_ALL
-};
 
 enum MallocErrorCodes {
     MAIN_PROGRAM_SOURCE_BUFFER,
@@ -137,5 +124,30 @@ enum MallocErrorCodes {
     COLLECT_BLOCK_GLOBALS_STRUCT,
     COLLECT_BLOCK_GLOBALS_NAMES,
     COLLECT_BLOCK_GLOBALS_TYPES,
-    PARSE_BOOLEAN_EXPRESSION_ALLOC_BOOLEXPR
+    PARSE_BOOLEAN_EXPRESSION_ALLOC_BOOLEXPR,
+    PARSE_BOOLEAN_EXPRESSION_NESTED_LIST,
+    PARSE_FUNCTION_CALL_ALLOC_STRUCT
+};
+
+/* Parse structure enums */
+
+enum TypeForm {
+    TF_LIST,        // T[]
+    TF_POINTER,     // &T
+    TF_PARAMETRIC,  // T<x, y, ...>
+    TF_STRUCT,      // struct foo
+    TF_ATOMIC,      // T
+};
+
+enum ModuleImportType {
+    MT_QUALIFIED,
+    MT_SPECIFIC,
+    MT_ALL
+};
+
+enum BoolExprType {
+    BET_ATOM,
+    BET_NESTED,
+    BET_FUNCALL,
+    BET_LIST_INDEX
 };
