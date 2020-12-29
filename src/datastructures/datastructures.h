@@ -116,8 +116,15 @@ struct WGlobals {
 // Nested expressions
 
 struct FunctionCall {
-    struct WFunction* function;
+    struct Token* function_name;
+    struct Token* parent_name;
     void** argument_exprs;
+    int argument_count;
+};
+
+struct ListIndex {
+    struct Token* list_name;
+    struct MathExpr* index;
 };
 
 struct MathExpr {
@@ -126,16 +133,18 @@ struct MathExpr {
         struct Token*    atom;    /* Variable name or numeric literal */
         struct MathExpr* derivs;  /* Elements of a nested expression */
         struct FunctionCall call; /* For if it's a function call */
-    };
+    } expression;
 };
 
 struct BoolExpr {
-    uint_fast32_t type;
-    union expression {
-        struct Token*    atom;    /* Variable name or numeric literal */
-        struct BoolExpr* derivs;  /* Elements of a nested expression */
+    uint_fast32_t type;           /* The type of expression. */
+    uint_fast32_t value;          /* Multi-purpose integer */
+    union {
+        struct Token*     atom;   /* Variable name or "true" or "false" */
+        struct BoolExpr** derivs; /* Elements of a nested expression */
         struct FunctionCall call; /* For if it's a function call */
-    };
+        struct ListIndex l_index; /* If a list is being indexed. */
+    } expression;
 };
 
 struct VarDeclare {
@@ -163,11 +172,11 @@ struct WhileLoop {
 
 struct WParseExpr {
     int expression_type;
-    union expression {
+    union {
         struct VarDeclare;
         struct VarAssign;
         struct IfStatement;
         struct ForLoop;
         struct WhileLoop;
-    };
+    } expression;
 };
