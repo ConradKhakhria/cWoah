@@ -99,6 +99,11 @@ int main(int argc, char* argv[]) {
     {
         bool implemented_error = false;
 
+        if (blocks[1]->index > 0) {
+            error_message("Structs haven't been implemented yet.\n");
+            implemented_error = true;
+        }
+
         if (blocks[2]->index > 0) {
             error_message("Type definitions haven't been implemented yet.\n");
             implemented_error = true;
