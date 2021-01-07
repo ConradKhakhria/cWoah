@@ -127,14 +127,28 @@ struct ListIndex {
     struct MathExpr* index;
 };
 
+// This will become more useful as the macros become more well-defined
+struct MacroUse {
+    int macro_name;           /* Whether it's heap![], stack![] or cast![] */
+    struct ParseExpr* derivs; /* General purpose internal ParseExpr* */
+};
+
+// E.g. library.function(..), struct_name.field_name, type.method(..) etc
+struct AttrResolution {
+    bool is_pointer;                /* foo.bar or foo->bar */
+    struct ParseExpr* parent_name;  /* [parent_name].something */
+    struct Token attribute_name;    /* something.[attribute_name] */
+};
+
 struct ParseExpr {
     uint_fast32_t type;           /* The type of expression. */
     uint_fast32_t value;          /* Multi-purpose integer */
     union {
-        struct Token*     atom;    /* Variable name or "true" or "false" */
-        struct ParseExpr** derivs; /* Elements of a compound expression */
-        struct FunctionCall call;  /* For if it's a function call */
-        struct ListIndex l_index;  /* If a list is being indexed. */
+        struct Token*     atom;       /* Variable name, true or false, numeric literal etc */
+        struct ParseExpr** derivs;    /* Elements of a compound expression */
+        struct FunctionCall call;     /* For if it's a function call */
+        struct ListIndex list_index;  /* If a list is being indexed. */
+        struct AttrResolution at_res; /* If it's a method call, struct field etc */
     } expression;
 };
 
