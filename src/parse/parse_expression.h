@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -9,8 +11,17 @@
 #define RND 0
 #define SQU 1
 
-bool compound_boolean_expression(Array tokens_array, struct BoolExpr* expr, int start, int end);
+bool compound_expression(Array tokens_array, int* operators, int operator_count,
+                         struct ParseExpr* expr, int start, int end);
 
-struct BoolExpr* parse_boolean_expression(Array tokens_array, int start, int end);
+bool compound_boolean_expression(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
-struct MathExpr* parse_math_expression(Array tokens_array, int start, int end);
+bool compound_math_expression(Array tokens_array, struct ParseExpr* expr, int start, int end);
+
+bool parse_function_call(Array tokens_array, struct ParseExpr* expr, int start, int end);
+
+bool parse_list_index(Array tokens_array, struct ParseExpr expr, int start, int end);
+
+bool parse_macro_use(Array tokens_array, struct ParseExpr expr, int start, int end);
+
+bool parse_attribute_resolution(Array tokens_array, struct ParseExpr expr, int start, int end);
