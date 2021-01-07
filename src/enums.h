@@ -150,10 +150,13 @@ enum ModuleImportType {
 };
 
 enum ParseExprType {
-    BET_ATOM,
-    BET_NESTED,
-    BET_FUNCALL,
-    BET_LIST_INDEX
+    PET_ATOMIC,
+    PET_COMPOUND_BOOLEAN,
+    PET_COMPOUND_ARITHMETIC,
+    PET_FUNCTION_CALL,
+    PET_LIST_INDEX,
+    PET_MACRO_USE,
+    PET_ATTR_RESOLUTION,
 };
 
 enum WStatementType {
