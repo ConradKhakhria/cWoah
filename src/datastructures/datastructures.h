@@ -88,14 +88,14 @@ struct WModuleImport {
 };
 
 struct WFunction {
-    struct Token*      function_name; /* The token for the function's name. */
-    struct WTypedef*   parent_type;   /* For if the function is a method (NULL if not) */
-    struct Token**     arg_names;     /* The (ordered) list of names of the arguments. */
-    struct WType**     arg_types;     /* The corresponding types of each arguments. */
-    struct WType*      ret_type;      /* The return type (NULL if none) of the function. */
-    struct WParseExpr* body;          /* The function body's list of statements. */
-    uint_fast32_t      arg_count;     /* The number of arguments. */
-    uint_fast32_t      body_len;      /* The length of the function body array. */
+    struct Token*       function_name; /* The token for the function's name. */
+    struct WTypedef*    parent_type;   /* For if the function is a method (NULL if not) */
+    struct Token**      arg_names;     /* The (ordered) list of names of the arguments. */
+    struct WType**      arg_types;     /* The corresponding types of each arguments. */
+    struct WType*       ret_type;      /* The return type (NULL if none) of the function. */
+    struct WParseExpr*  body;          /* The function body's list of statements. */
+    uint_fast32_t       arg_count;     /* The number of arguments. */
+    uint_fast32_t       body_len;      /* The length of the function body array. */
 };
 
 struct WStruct {
@@ -111,9 +111,9 @@ struct WGlobals {
     uint_fast32_t  variable_count; /* The number of global variables */
 };
 
-/* Parsing statements within a function */
+/**** Parsing statements within a function ****/
 
-// Nested expressions
+/* Nested expressions */
 
 struct FunctionCall {
     struct Token* function_name;
@@ -127,25 +127,18 @@ struct ListIndex {
     struct MathExpr* index;
 };
 
-struct MathExpr {
-    uint_fast32_t type;
-    union expression {
-        struct Token*    atom;    /* Variable name or numeric literal */
-        struct MathExpr* derivs;  /* Elements of a nested expression */
-        struct FunctionCall call; /* For if it's a function call */
-    } expression;
-};
-
-struct BoolExpr {
+struct ParseExpr {
     uint_fast32_t type;           /* The type of expression. */
     uint_fast32_t value;          /* Multi-purpose integer */
     union {
-        struct Token*     atom;   /* Variable name or "true" or "false" */
-        struct BoolExpr** derivs; /* Elements of a nested expression */
-        struct FunctionCall call; /* For if it's a function call */
-        struct ListIndex l_index; /* If a list is being indexed. */
+        struct Token*     atom;    /* Variable name or "true" or "false" */
+        struct ParseExpr** derivs; /* Elements of a compound expression */
+        struct FunctionCall call;  /* For if it's a function call */
+        struct ListIndex l_index;  /* If a list is being indexed. */
     } expression;
 };
+
+/* Statements */
 
 struct VarDeclare {
     struct Token* var_name; /* The name of the declared variable */
@@ -159,7 +152,10 @@ struct VarAssign {
 };
 
 struct IfStatement {
-    uint_fast32_t type; /* Whether it's "if", "elif" or "else" */
+    uint_fast32_t       type; /* Whether it's "if", "elif" or "else" */
+    struct BoolExpr*    cond; /* The boolean conditional statement */
+    struct WParseExpr** statements; /* The statements in the if block */
+    uint_fast32_t       stmt_count; /* The number of statements */
 };
 
 struct ForLoop {
@@ -173,10 +169,10 @@ struct WhileLoop {
 struct WParseExpr {
     int expression_type;
     union {
-        struct VarDeclare;
-        struct VarAssign;
-        struct IfStatement;
-        struct ForLoop;
-        struct WhileLoop;
+        struct VarDeclare*  decl;
+        struct VarAssign*   assign;
+        struct IfStatement* if_stmt;
+        struct ForLoop*     for_loop;
+        struct WhileLoop*   while_loop;
     } expression;
 };
