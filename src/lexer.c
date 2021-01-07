@@ -163,6 +163,9 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
     * -------
     * Whether or not the input was a word.
     */
+    bool contains_exclamation = false; // As only macros have a '!' at the end,
+                                       // this is needed to check for these edge cases
+
     if (!char_range('a', source[state->index], 'z')
     &&  !char_range('A', source[state->index], 'Z') && source[state->index] != '_') {
         return false;
@@ -172,11 +175,16 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
     state->index   += 1;
 
     while (char_range('a', source[state->index], 'z') || char_range('A', source[state->index], 'Z')
-    ||     char_range('0', source[state->index], '9') || source[state->index] == '_') {
+    ||     char_range('0', source[state->index], '9') || source[state->index] == '_'
+    ||     source[state->index] == "!") {
         if (state->index + 1 >= len) {
             error_message("identifier continues until the end of file.\n");
             error_println(state->token->line_no, state->token->col_no);
             exit(-SYNTAX_ERROR);
+        }
+
+        if (source[state->index] == "!") {
+            contains_exclamation = true;
         }
 
         state->index += 1;
@@ -206,12 +214,13 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
     match_word_token("int",     3, T_float)
     match_word_token("char",    4, T_char)
     match_word_token("and",     3, T_AND)
+    match_word_token("cast!",   5, T_CAST)
     match_word_token("elif",    4, T_ELIF)
     match_word_token("else",    4, T_ELSE)
     match_word_token("false",   5, T_FALSE)
     match_word_token("for",     3, T_FOR)
     match_word_token("globals", 7, T_GLOBALS)
-    match_word_token("heap",    4, T_HEAP)
+    match_word_token("heap!",   5, T_HEAP)
     match_word_token("if",      2, T_IF)
     match_word_token("in",      2, T_IN)
     match_word_token("macro",   5, T_MACRO)
@@ -221,16 +230,24 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
     match_word_token("or",      2, T_OR)
     match_word_token("return",  6, T_RETURN)
     match_word_token("self",    4, T_SELF)
-    match_word_token("stack",   5, T_STACK)
+    match_word_token("stack!",  6, T_STACK)
     match_word_token("struct",  6, T_STRUCT)
     match_word_token("true",    4, T_TRUE)
     match_word_token("type",    4, T_TYPE)
     match_word_token("use",     3, T_USE)
     match_word_token("while",   5, T_WHILE)
     match_word_token("xor",     3, T_XOR)
-    else
-        state->token->token_type = T_NAME;
-
+    else {
+        if (contains_exclamation) {
+            error_message("Token cannot contain an exclamation mark if it is not"
+                          "a built-in macro.\n");
+            error_println(state->line_no, state->col_no);
+            exit(-SYNTAX_ERROR);
+        } else {
+            state->token->token_type = T_NAME;
+        }
+    } 
+        
     return true;
 }
 
@@ -264,6 +281,7 @@ bool tokenise_sym(char* source, int source_len, struct LexerState* state)
         match_sym(';',  T_SEMICOLON);
         match_sym('&',  T_AMPERSAND);
         match_sym('@',  T_AT_SYM);
+        match_sym('%',  T_PERCENT);
 
         case '"':
             state->token->token_type = T_DBL_QUOT_STRING;
