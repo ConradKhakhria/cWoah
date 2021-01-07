@@ -1,13 +1,13 @@
 use data.Array;
 
-@(Ord T)
+@(ordered T)
 fn quicksort(xs: Array<T>) -> Array<T> {
     if xs.len() < 2 {
         return xs;
     }
 
-    lower: Array<T> = stack[].init();
-    upper: Array<T> = stack[].init();
+    lower: Array<T> = stack![].init();
+    upper: Array<T> = stack![].init();
 
     for i: int in 1 : xs.len() {
         if xs[i] < xs[0] {
@@ -22,7 +22,7 @@ fn quicksort(xs: Array<T>) -> Array<T> {
     return quicksort(lower).append(xs[0]).concat(quicksort(upper));
 }
 
-@(Ord T)
+@(ordered T)
 fn bubblesort(xs: Array<T>) -> Array<T> {
     sorted: bool = false;
 

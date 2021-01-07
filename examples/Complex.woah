@@ -5,11 +5,14 @@ module Complex (
 use io;
 use math;
 
-@(Number T)
-type Complex<T> = &struct {
+@(number T)
+struct Complex {
     real: T,
     imag: T
 }
+
+@(number T)
+type Complex<T> = &struct Complex<T>;
 
 // Types defined with a type constructor (as above) are the only things in woah
 // which can have methods, which are useful for scoping as well as for generally
@@ -37,7 +40,7 @@ fn Complex<T>.imag() -> T {
     return self.imag;
 }
 
-@(Number N)
+@(number N)
 fn Complex<T>.add(z: Complex<N>) -> Complex<T> {
     self.real += z.real();
     self.imag += z.imag();

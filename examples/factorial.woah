@@ -1,6 +1,6 @@
 use io; // 'io' is a library containing input/output functions
 
-@(Integral T) // Generics are defined with function decorators 
+@(integer T) // Generics are defined with function decorators 
 fn factorial(n: T) -> T {
     ret: T = 1;
 
@@ -15,7 +15,7 @@ fn factorial(n: T) -> T {
 // integer defined as a struct (like with typedefs in C), meaning that normal
 // arithmetic operators won't work
 fn factorial(n: Integer) -> Integer {
-    ret: T = heap[].init(1);   // As we're returning value ret, we want to allocate it on the heap
+    ret: T = heap![].init(1);   // As we're returning value ret, we want to allocate it on the heap
 
     for i: int in 2 : n {
         ret.mul(i);
@@ -25,5 +25,5 @@ fn factorial(n: Integer) -> Integer {
 }
 
 fn main() -> none {
-    io.printfln("{factorial(10)}"); // io.printfln formats and prints a string with a newline
+    io.println("{}".fmt(factorial(10))); // io.println formats and prints a string with a newline
 }
