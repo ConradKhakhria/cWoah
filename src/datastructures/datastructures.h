@@ -148,6 +148,7 @@ struct ParseExpr {
         struct ParseExpr** derivs;    /* Elements of a compound expression */
         struct FunctionCall call;     /* For if it's a function call */
         struct ListIndex list_index;  /* If a list is being indexed. */
+        struct MacroUse macro_use;    /* if it's heap![], stack![] or cast![] */
         struct AttrResolution at_res; /* If it's a method call, struct field etc */
     } expression;
 };
