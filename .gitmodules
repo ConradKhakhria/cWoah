@@ -1,3 +1,3 @@
-[submodule "include/Hashmap"]
-	path = include/Hashmap
-	url = https://github.com/ConradKhakhria/Hashmap.git
+[submodule "include/HashMap"]
+	path = include/HashMap
+	url = https://github.com/ConradKhakhria/HashMap.git
