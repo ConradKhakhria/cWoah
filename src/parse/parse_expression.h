@@ -20,8 +20,10 @@ bool compound_math_expression(Array tokens_array, struct ParseExpr* expr, int st
 
 bool parse_function_call(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
-bool parse_list_index(Array tokens_array, struct ParseExpr expr, int start, int end);
+bool parse_list_index(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
-bool parse_macro_use(Array tokens_array, struct ParseExpr expr, int start, int end);
+bool parse_macro_use(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
-bool parse_attribute_resolution(Array tokens_array, struct ParseExpr expr, int start, int end);
+bool parse_attribute_resolution(Array tokens_array, struct ParseExpr* expr, int start, int end);
+
+struct ParseExpr* parse_general_expression(Array tokens_array, int start, int end);
