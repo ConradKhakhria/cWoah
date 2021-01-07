@@ -24,6 +24,7 @@ enum TokenType {
     T_PLUS,             // +
     T_MINUS,            // -
     T_ASTERISK,         // *
+    T_PERCENT,          // %
     T_DBL_QUOT_STRING,  // ".*?"
     T_SGL_QUOT_STRING,  // '.*?'
 
@@ -74,6 +75,7 @@ enum TokenType {
 
     // Keywords (all of the following are just the name but in upper case)
     T_AND,
+    T_CAST,
     T_ELIF,
     T_ELSE,
     T_FALSE,
@@ -126,7 +128,9 @@ enum MallocErrorCodes {
     COLLECT_BLOCK_GLOBALS_TYPES,
     PARSE_BOOLEAN_EXPRESSION_ALLOC_BOOLEXPR,
     PARSE_BOOLEAN_EXPRESSION_NESTED_LIST,
-    PARSE_FUNCTION_CALL_ALLOC_STRUCT
+    PARSE_FUNCTION_CALL_ALLOC_STRUCT,
+    PARSE_STATEMENT_EXPR_STRUCT,
+    PARSE_STATEMENT_STMT_STRUCT
 };
 
 /* Parse structure enums */
@@ -145,9 +149,17 @@ enum ModuleImportType {
     MT_ALL
 };
 
-enum BoolExprType {
+enum ParseExprType {
     BET_ATOM,
     BET_NESTED,
     BET_FUNCALL,
     BET_LIST_INDEX
+};
+
+enum WStatementType {
+    WPE_DECL,
+    WPE_ASSIGN,
+    WPE_IF,
+    WPE_FOR,
+    WPE_WHILE
 };
