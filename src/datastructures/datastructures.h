@@ -117,14 +117,14 @@ struct WGlobals {
 
 struct FunctionCall {
     struct Token* function_name;
-    struct Token* parent_name;
-    void** argument_exprs;
+    struct ParseExpr* parent_expr;
+    struct ParseExpr** argument_exprs;
     int argument_count;
 };
 
 struct ListIndex {
     struct Token* list_name;
-    struct MathExpr* index;
+    struct ParseExpr* index;
 };
 
 // This will become more useful as the macros become more well-defined
