@@ -6,6 +6,7 @@
 #include "../constants.h"
 #include "../datastructures/datastructures.h"
 #include "../enums.h"
+#include "parse_block_collect.h"
 
 // index in int bracket_depths[2]
 #define RND 0
@@ -18,7 +19,8 @@ bool compound_boolean_expression(Array tokens_array, struct ParseExpr* expr, int
 
 bool compound_math_expression(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
-bool parse_function_call(Array tokens_array, struct ParseExpr* expr, int start, int end);
+bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
+                         struct ParseExpr* parent, int start, int end);
 
 bool parse_list_index(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
