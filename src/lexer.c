@@ -176,14 +176,14 @@ bool tokenise_word(char* source, int len, struct LexerState* state)
 
     while (char_range('a', source[state->index], 'z') || char_range('A', source[state->index], 'Z')
     ||     char_range('0', source[state->index], '9') || source[state->index] == '_'
-    ||     source[state->index] == "!") {
+    ||     source[state->index] == '!') {
         if (state->index + 1 >= len) {
             error_message("identifier continues until the end of file.\n");
             error_println(state->token->line_no, state->token->col_no);
             exit(-SYNTAX_ERROR);
         }
 
-        if (source[state->index] == "!") {
+        if (source[state->index] == '!') {
             contains_exclamation = true;
         }
 
