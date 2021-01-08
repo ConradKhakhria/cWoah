@@ -1,10 +1,16 @@
-CC=gcc
-CD=cd
-RM=rm
-SRC=src
-INCL= datastructures/datastructures.c lexer.c parse/parse.c \
-			parse/parse_type.c parse/parse_block_collect.c 				\
-			woah_error.c misc.c init.c
+CC    = gcc
+CD    = cd
+RM    = rm
+SRC   = src
+INCL  = datastructures/datastructures.c \
+		parse/parse_block_collect.c	    \
+		parse/parse_expression.c		\
+		parse/parse_type.c				\
+		parse/parse.c 					\
+		init.c							\
+        lexer.c                         \
+        misc.c                          \
+        woah_error.c
 			
 MAIN=main.c
 TARGET=woah
