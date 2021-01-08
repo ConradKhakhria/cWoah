@@ -26,23 +26,13 @@ bool compound_expression(Array tokens_array, int* operators, int operator_count,
 
                 malloc_error(expr->expression.derivs, PARSE_BOOLEAN_EXPRESSION_NESTED_LIST);
 
-                if (op < 4) {
-                    expr->expression.derivs[0] = parse_boolean_expression(
-                        tokens_array, start, i - 1
-                    );
+                expr->expression.derivs[0] = parse_general_expression(
+                    tokens_array, start, i - 1
+                );
 
-                    expr->expression.derivs[1] = parse_boolean_expression(
-                        tokens_array, i + 1, end
-                    );
-                } else {
-                    expr->expression.derivs[0] = parse_math_expression(
-                        tokens_array, start, i - 1
-                    );
-
-                    expr->expression.derivs[1] = parse_math_expression(
-                        tokens_array, i + 1, end
-                    );
-                }
+                expr->expression.derivs[1] = parse_general_expression(
+                    tokens_array, i + 1, end
+                );
 
                 return true;
             }
@@ -80,6 +70,7 @@ bool compound_boolean_expression(Array tokens_array, struct ParseExpr* expr, int
         T_XOR,
         T_NOT,
         T_DBL_EQUALS,
+        T_INEQ,
         T_LT,
         T_GT,
         T_LEQ,
@@ -122,13 +113,18 @@ bool compound_math_expression(Array tokens_array, struct ParseExpr* expr, int st
     return compound_expression(tokens_array, operators, 5, expr, start, end);
 }
 
-bool parse_function_call(Array tokens_array, struct ParseExpr* expr, int start, int end)
+bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
+                         struct ParseExpr* parent, int start, int end)
 {
-   /* Parses a function call into a struct FunctionCall*
+   /* Checks if the expression is a function call
     *
     * Parameters
     * ----------
     * - Array tokens_array: the tokens containing the boolean expression.
+    * 
+    * - struct ParseExpr* expr: the parse expression to be (potentially) modified.
+    * 
+    * - struct ParseExpr* parent: the parent to this function (NULL if there is none)
     * 
     * - int start: the first token in the expression.
     * 
@@ -143,40 +139,115 @@ bool parse_function_call(Array tokens_array, struct ParseExpr* expr, int start, 
     * Whether it is in fact a function call.
     * 
     */
-    struct Token** tokens     = (struct Token **)tokens_array->buffer;
-    struct FunctionCall* call = malloc(sizeof(struct FunctionCall));
 
-    malloc_error(call, PARSE_FUNCTION_CALL_ALLOC_STRUCT);
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
+    int argument_start    = start + 2;
+    int argument_end      = argument_start;
 
-    if (tokens[start]->token_type != T_NAME) {
-        free(call);
-
+    if (tokens[start]->token_type != T_NAME || tokens[start + 1]->token_type != T_OPEN_BRKT
+    ||  tokens[end]->token_type   != T_CLOSE_BRKT) {
         return false;
-    } else if (tokens[start + 1]->token_type == T_OPEN_BRKT
-    && tokens[end]->token_type == T_CLOSE_BRKT) {
-        call->function_name = tokens[start];
-        call->parent_name   = NULL;
-
-        start += 2;
-    } else if (tokens[start + 2] == T_NAME
-    && tokens[start + 3]->token_type == T_OPEN_BRKT
-    && tokens[start + 1]->token_type == T_FULL_STOP) {
-        call->function_name = tokens[start + 2];
-        call->parent_name   = tokens[start];
-
-        start += 4;
     } else {
-        free(call);
-
-        return false;
+        expr->type = PET_FUNCTION_CALL;
+        expr->expression.call = (struct FunctionCall) {
+            .function_name  = tokens[start],
+            .parent_expr    = parent,
+        };
     }
 
-    // Each iteration lands on a new argument
+    malloc_error(expr->expression.call.argument_exprs, PARSE_FUNCTION_CALL_ARGUMENT_EXPRS);
+
+    Array arguments = make_array();
+
+    // Lands on a new argument each time
     while (true) {
-        
+        // Finds the last token of the argument
+        while (true) {
+            if (argument_end >= end) {
+                error_message("Unclosed arguments in function call or weird syntax.\n");
+                error_println(tokens[argument_start]->line_no, tokens[argument_start]->col_no);
+                exit(-SYNTAX_ERROR);
+            } else if (tokens[argument_end]->token_type == T_OPEN_BRKT) {
+                argument_end = traverse_block(
+                    tokens_array, argument_end, end + 1, T_OPEN_BRKT, T_CLOSE_BRKT
+                );
+
+                if (argument_end == -1) {
+                    error_message("Unbalanced brackets in function argument.\n");
+                    error_println(tokens[argument_start]->line_no, tokens[argument_start]->col_no);
+                    exit(-SYNTAX_ERROR);
+                }
+            } else if (tokens[argument_end]->token_type == T_OPEN_SQ_BRKT) {
+                argument_end = traverse_block(
+                    tokens_array, argument_end, end + 1, T_OPEN_SQ_BRKT, T_CLOSE_SQ_BRKT
+                );
+
+                if (argument_end == -1) {
+                    error_message("Unbalanced square brackets in function argument.\n");
+                    error_println(tokens[argument_start]->line_no, tokens[argument_start]->col_no);
+                    exit(-SYNTAX_ERROR);
+                }
+            } else if (tokens[argument_end]->token_type == T_CLOSE_BRKT
+                   ||  tokens[argument_end]->token_type == T_COMMA) {
+                break;
+            }
+
+            argument_end += 1;
+        }
+
+        array_add(arguments, (void *)parse_general_expression(
+            tokens_array, argument_start, argument_end - 1
+        ));
+
+        if (tokens[argument_end]->token_type == T_COMMA) {
+            argument_end  += 1;
+            argument_start = argument_end;
+        } else {
+            break;
+        }
     }
 
+    expr->expression.call.argument_count = arguments->buffer;
+    expr->expression.call.argument_count = arguments->index;
 
+    free(arguments);
+
+    return true;
+}
+
+bool parse_list_index(Array tokens_array, struct ParseExpr* expr, int start, int end)
+{
+   /* Checks if the expression is a list being indexed.
+    * 
+    * Parameters
+    * ----------
+    * ""        ""          ""
+    * 
+    * Modifies
+    * --------
+    * ""        ""          ""
+    * 
+    * Returns
+    * -------
+    * Whether or not the expression is a list indexing.
+    */
+
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
+
+    if (tokens[start]->token_type != T_NAME || tokens[start + 1]->token_type != T_OPEN_SQ_BRKT
+    ||  tokens[end]->token_type   != T_CLOSE_SQ_BRKT) {
+        return false;
+    } else {
+        expr->type = PET_LIST_INDEX;
+        expr->expression.list_index = (struct ListIndex) {
+            .list_name = tokens[start],
+            .index     = parse_general_expression(
+                tokens_array, start + 2, end - 1
+            )
+        };
+
+        return true;
+    }
 }
 
 bool parse_macro_use(Array tokens_array, struct ParseExpr* expr, int start, int end)
@@ -244,4 +315,24 @@ bool parse_macro_use(Array tokens_array, struct ParseExpr* expr, int start, int 
         default:
             return false;
     }
+}
+
+bool parse_attribute_resolution(Array tokens_array, struct ParseExpr* expr, int start, int end)
+{
+   /* Checks if the expression is an attribute resolution
+    * 
+    * Parameters
+    * ----------
+    * ""        ""          ""
+    * 
+    * Modifies
+    * --------
+    * ""        ""          ""
+    * 
+    * Returns
+    * -------
+    * Whether or not the expression is a macro use
+    */
+
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
 }
