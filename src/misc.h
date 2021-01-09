@@ -16,7 +16,11 @@
 
 void fprint_slice(FILE* fd, char* array, int start, int end);
 
+void fprint_token(FILE* fd, struct Token* token, char* source);
+
 void fprint_type(FILE* fd, struct WType* type);
+
+void fprint_parse_expression(FILE* fd, struct ParseExpr* expr, char* source);
 
 int get_szbits(struct WType* type, Array* blocks);
 
