@@ -1,5 +1,97 @@
 #include "parse_expression.h"
 
+bool parse_atomic_expression(Array tokens_array, struct ParseExpr* expr, int start, int end)
+{
+   /* Checks if the expression is atomic
+    *
+    * Parameters
+    * ----------
+    * - Array tokens_array: the tokens containing the expression.
+    * 
+    * - struct ParseExpr expr: the expression to be modified if it is a compound expression.
+    * 
+    * - int start: the index of the first token in the expression.
+    * 
+    * - int end: the index of the last token in the expression.
+    * 
+    * Modifies
+    * --------
+    * - struct ParseExpr* expr if and only if it is compound.
+    * 
+    * Returns
+    * -------
+    * Whether it is an atomic expression
+    */
+
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
+
+    if (start != end) {
+        return false;
+    }
+
+    switch (tokens[start]->token_type) {
+        case T_NAME:
+        case T_B2NUM:
+        case T_B10NUM:
+        case T_B16NUM:
+        case T_FLOAT:
+        case T_SGL_QUOT_STRING:
+        case T_DBL_QUOT_STRING:
+            expr->type = PET_ATOMIC;
+            expr->expression.atom = tokens[start];
+
+            return true;
+        
+        default:
+            error_message("Unexpected isolated token in expression: '");
+            fprint_token(stderr, tokens[start], program_source_buffer);
+            fprintf(stderr, "'.\n");
+            error_println(tokens[start]->line_no, tokens[start]->col_no);
+            exit(-SYNTAX_ERROR);
+    }
+}
+
+bool parse_attribute_resolution(Array tokens_array, struct ParseExpr* expr,
+                                struct ParseExpr* prev, int start, int end)
+{
+    struct Token** tokens = (struct Token **)tokens_array->buffer;
+    int index = start;
+
+    while (index < end) {
+        if (tokens[index]->token_type == T_ARROW || tokens[index]->token_type == T_FULL_STOP) {
+            expr->type = PET_ATTR_RESOLUTION;
+
+            expr->expression.at_res.is_pointer  = tokens[index]->token_type == T_ARROW;
+
+            expr->expression.at_res.parent_attr = parse_general_expression(
+                tokens_array, prev, start, index - 1
+            );
+
+            expr->expression.at_res.child_attr  = parse_general_expression(
+                tokens_array, expr->expression.at_res.parent_attr, index + 1, end
+            );
+
+            return true;
+        } else if (tokens[index]->token_type == T_OPEN_BRKT
+          || tokens[index]->token_type == T_OPEN_SQ_BRKT) {
+            index = traverse_block(
+                tokens_array, index + 1, end + 1, tokens[index]->token_type,
+                (tokens[index]->token_type == T_OPEN_BRKT) ? T_CLOSE_BRKT : T_CLOSE_SQ_BRKT
+            );
+
+            if (index == -1) {
+                error_message("Unmatched brackets in expression.\n");
+                error_println(tokens[start]->line_no, tokens[start]->col_no);
+                exit(-SYNTAX_ERROR);
+            }
+        }
+
+        index += 1;
+    }
+
+    return false;
+}
+
 bool compound_expression(Array tokens_array, int* operators, int operator_count,
                          struct ParseExpr* expr, int start, int end)
 {
@@ -49,13 +141,7 @@ bool compound_boolean_expression(Array tokens_array, struct ParseExpr* expr, int
     *
     * Parameters
     * ----------
-    * - Array tokens_array: the tokens containing the boolean expression.
-    * 
-    * - struct ParseExpr expr: the expression to be modified if it is a compound expression.
-    * 
-    * - int start: the index of the first token in the expression.
-    * 
-    * - int end: the index of the last token in the expression.
+    * Same as parse_atomic_expression()
     * 
     * Modifies
     * --------
@@ -350,7 +436,6 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
 
     struct Token** tokens  = (struct Token **)tokens_array->buffer;
     struct ParseExpr* expr = malloc(sizeof(struct ParseExpr));
-    int index = start;
 
     malloc_error(expr, PARSE_GENERAL_EXPRESSION_ALLOC_EXPR);
 
@@ -369,7 +454,7 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
         if (traverse_block(tokens_array, start, end, T_OPEN_SQ_BRKT, T_CLOSE_SQ_BRKT) == end) {
             expr->type = PET_LIST_INDEX;
             expr->expression.list_index = (struct ListIndex) {
-                //TODO: implement direct list indexing of a complex expression
+                //TODO: implement direct list indexing of a non-atomic expression
                 // e.g. function_name()[0] 
             };
 
@@ -377,69 +462,15 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
         }
     }
 
-    if (start == end) {
-        switch (tokens[start]->token_type) {
-            case T_NAME:
-            case T_B2NUM:
-            case T_B10NUM:
-            case T_B16NUM:
-            case T_FLOAT:
-            case T_SGL_QUOT_STRING:
-            case T_DBL_QUOT_STRING:
-                expr->type = PET_ATOMIC;
-                expr->expression.atom = tokens[start];
-
-                return expr;
-        
-            default:
-                error_message("Unexpected isolated token in expression: '");
-                fprint_token(stderr, tokens[start], program_source_buffer);
-                fprintf(stderr, "'.\n");
-                error_println(tokens[start]->line_no, tokens[start]->col_no);
-                exit(-SYNTAX_ERROR);
-        }
+    if (parse_atomic_expression(tokens_array, expr, start, end)) {
+        return expr;
     } else if (compound_boolean_expression(tokens_array, expr, start, end)) {
         return expr;
     } else if (compound_math_expression(tokens_array, expr, start, end)) {
         return expr;
-    }
-
-    // Look for attribute resolution - if one is found, the function returns so in
-    // the rest of the code we know there's no attribute resolution.
-    while (index < end) {
-        if (tokens[index]->token_type == T_ARROW || tokens[index]->token_type == T_FULL_STOP) {
-            expr->type = PET_ATTR_RESOLUTION;
-
-            expr->expression.at_res.is_pointer  = tokens[index]->token_type == T_ARROW;
-
-            expr->expression.at_res.parent_attr = parse_general_expression(
-                tokens_array, prev, start, index - 1
-            );
-
-            expr->expression.at_res.child_attr  = parse_general_expression(
-                tokens_array, expr->expression.at_res.parent_attr, index + 1, end
-            );
-
-            return expr;
-        } else if (tokens[index]->token_type == T_OPEN_BRKT
-          || tokens[index]->token_type == T_OPEN_SQ_BRKT) {
-            index = traverse_block(
-                tokens_array, index + 1, end + 1, tokens[index]->token_type,
-                (tokens[index]->token_type == T_OPEN_BRKT) ? T_CLOSE_BRKT : T_CLOSE_SQ_BRKT
-            );
-
-            if (index == -1) {
-                error_message("Unmatched brackets in expression.\n");
-                error_println(tokens[start]->line_no, tokens[start]->col_no);
-                exit(-SYNTAX_ERROR);
-            }
-        }
-
-        index += 1;
-    }
-
-    // Potentially find function call
-    if (parse_function_call(tokens_array, expr, prev, start, end)) {
+    } else if (parse_attribute_resolution(tokens_array, expr, prev, start, end)) {
+        return expr;
+    } else if (parse_function_call(tokens_array, expr, prev, start, end)) {
         return expr;
     } else if (parse_macro_use(tokens_array, expr, start, end)) {
         return expr;
