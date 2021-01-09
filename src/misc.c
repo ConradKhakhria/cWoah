@@ -4,7 +4,13 @@
 
 #include "misc.h"
 
-void fprint_slice(FILE* fd, char* array, int start, int end)
+#define FPE_COMP_BINOP(_TOKEN_TYPE, _TOKEN_STRING)  \
+    case _TOKEN_TYPE:                               \
+        fprintf(fd, _TOKEN_STRING);                 \
+        break                             
+
+
+void fprint_slice(FILE* fd, char* string, int start, int end)
 {
    /* Prints a slice of a string between start and end.
     *
@@ -19,10 +25,28 @@ void fprint_slice(FILE* fd, char* array, int start, int end)
     * Modifies nothing.
     */
     for (int i = start; i < end; i++) {
-        fprintf(fd, "%c", array[i]);
+        fprintf(fd, "%c", string[i]);
     }
 }
 
+void fprint_token(FILE* fd, struct Token* token, char* source)
+{
+   /* Prints a token's string value
+    *
+    * Parameters
+    * ----------
+    * - FILE* fd: the file descriptor to print the token to
+    * 
+    * - struct Token* token: the token to print
+    * 
+    * - char* array: the string containing the token
+    * 
+    * Returns: nothing.
+    * -------
+    */
+
+    fprint_slice(fd, source, token->start_i, token->end_i);
+}
 
 void fprint_type(FILE* fd, struct WType* type)
 {
@@ -97,6 +121,122 @@ void fprint_type(FILE* fd, struct WType* type)
         default: // This should never happen
             error_message("Unexpected internal error in print_type()\n");
             exit(-1);
+    }
+}
+
+void fprint_parse_expression(FILE* fd, struct ParseExpr* expr, char* source)
+{
+    int i;
+
+    if (expr == NULL) {
+        fprintf(fd, " () ");
+        return;
+    }
+
+    switch (expr->type) {
+        case PET_ATOMIC:
+            fprintf(fd, " ATOM [ ");
+            fprint_token(fd, expr->expression.atom, source);
+            fprintf(fd, " ] ");
+            break;
+
+        case PET_ATTR_RESOLUTION:
+            fprintf(fd, " ATTR-RES [");
+            fprint_parse_expression(fd, expr->expression.at_res.parent_attr, source);
+            fprintf(fd, (expr->expression.at_res.is_pointer) ? "] -> [" : "] . [");
+            fprint_parse_expression(fd, expr->expression.at_res.child_attr, source);
+            fprintf(fd, "] ");
+
+            break;
+
+        case PET_COMPOUND_ARITHMETIC:
+        case PET_COMPOUND_BOOLEAN:
+            fprintf(fd, " COMPOUND [");
+            fprint_parse_expression(fd, expr->expression.derivs[0], source);
+
+            // Get the binary operator
+            switch (expr->value) {
+                FPE_COMP_BINOP(T_OR,         "or");
+                FPE_COMP_BINOP(T_AND,        "and");
+                FPE_COMP_BINOP(T_XOR,        "xor");
+                FPE_COMP_BINOP(T_NOT,        "not");
+                FPE_COMP_BINOP(T_DBL_EQUALS, "==");
+                FPE_COMP_BINOP(T_INEQ,       "!=");
+                FPE_COMP_BINOP(T_LT,         "<");
+                FPE_COMP_BINOP(T_GT,         ">");
+                FPE_COMP_BINOP(T_LEQ,        "<=");
+                FPE_COMP_BINOP(T_GEQ,        ">=");
+                FPE_COMP_BINOP(T_PLUS,       "+");
+                FPE_COMP_BINOP(T_MINUS,      "-");
+                FPE_COMP_BINOP(T_ASTERISK,   "*");
+                FPE_COMP_BINOP(T_FWD_SLASH,  "/");
+                FPE_COMP_BINOP(T_PERCENT,    "%%");
+
+                default:
+                    error_message("internal error 1 in fprint_parse_expression().\n");
+                    exit(-2);
+            }
+
+            fprint_parse_expression(fd, expr->expression.derivs[1], source);
+            fprintf(fd, "] ");
+
+            break;
+
+        case PET_FUNCTION_CALL:
+            fprintf(fd, " FUNCALL ");
+            fprint_token(fd, expr->expression.call.function_name, source);
+            fprintf(fd, " (");
+
+            for (i = 0; i < expr->expression.call.argument_count; i++) {
+                if (i > 0) {
+                    fprintf(fd, ",");
+                }
+
+                fprint_parse_expression(fd, expr->expression.call.argument_exprs[i], source);
+            }
+
+            fprintf(fd, ") ");
+            break;
+
+        case PET_LIST_INDEX:
+            fprintf(fd, " LIST-INDEX ");
+            fprint_token(fd, expr->expression.list_index.list_name, source);
+            fprintf(fd, " [ ");
+            fprint_parse_expression(fd, expr->expression.list_index.index, source);
+            fprintf(fd, " ] ");
+
+            break;
+
+        case PET_MACRO_USE:
+            fprintf(fd, " MACRO-USE ");
+
+            switch (expr->expression.macro_use.macro_name) {
+                case T_CAST:
+                    fprintf(fd, "CAST![");
+                    break;
+
+                case T_HEAP:
+                    fprintf(fd, "HEAP![");
+                    break;
+
+                case T_STACK:
+                    fprintf(fd, "STACK![");
+                    break;
+
+                default:
+                    error_message("Unexpected internal error 3 in fprint_parse_expression().\n");
+                    exit(-2);
+            }
+
+            fprint_parse_expression(fd, expr->expression.macro_use.derivs, source);
+
+            fprintf(fd, "] ");
+
+            break;
+
+        default:
+            error_message("internal error 2 in fprint_parse_expression().\n");
+            exit(-2);
     }
 }
 
