@@ -27,11 +27,11 @@ bool compound_expression(Array tokens_array, int* operators, int operator_count,
                 malloc_error(expr->expression.derivs, PARSE_BOOLEAN_EXPRESSION_NESTED_LIST);
 
                 expr->expression.derivs[0] = parse_general_expression(
-                    tokens_array, start, i - 1
+                    tokens_array, NULL, start, i - 1
                 );
 
                 expr->expression.derivs[1] = parse_general_expression(
-                    tokens_array, i + 1, end
+                    tokens_array, NULL, i + 1, end
                 );
 
                 return true;
@@ -196,7 +196,7 @@ bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
         }
 
         array_add(arguments, (void *)parse_general_expression(
-            tokens_array, argument_start, argument_end - 1
+            tokens_array, NULL, argument_start, argument_end - 1
         ));
 
         if (tokens[argument_end]->token_type == T_COMMA) {
@@ -242,7 +242,7 @@ bool parse_list_index(Array tokens_array, struct ParseExpr* expr, int start, int
         expr->expression.list_index = (struct ListIndex) {
             .list_name = tokens[start],
             .index     = parse_general_expression(
-                tokens_array, start + 2, end - 1
+                tokens_array, NULL, start + 2, end - 1
             )
         };
 
@@ -282,7 +282,7 @@ bool parse_macro_use(Array tokens_array, struct ParseExpr* expr, int start, int 
                 expr->expression.macro_use = (struct MacroUse) {
                     .macro_name = T_CAST,
                     .derivs     = parse_general_expression(
-                        tokens_array, start + 2, end - 1
+                        tokens_array, NULL, start + 2, end - 1
                     )
                 };
             }
@@ -305,34 +305,136 @@ bool parse_macro_use(Array tokens_array, struct ParseExpr* expr, int start, int 
                 expr->expression.macro_use = (struct MacroUse) {
                     .macro_name = T_HEAP,
                     .derivs     = parse_general_expression(
-                        tokens_array, start + 2, end - 1
+                        tokens_array, NULL, start + 2, end - 1
                     )
                 };
             }
 
             return true;
-    
+
         default:
             return false;
     }
 }
 
-bool parse_attribute_resolution(Array tokens_array, struct ParseExpr* expr, int start, int end)
+struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr* prev, int start, int end)
 {
-   /* Checks if the expression is an attribute resolution
-    * 
+   /* Type-agnostic recursive descent parser for expressions of any form.
+    *
     * Parameters
     * ----------
-    * ""        ""          ""
+    * - Array tokens_array: the tokens containing the expression.
     * 
-    * Modifies
-    * --------
-    * ""        ""          ""
+    * - struct ParseExpr* prev: the expression evaluated to the left of this one
+    * 
+    * - int start: the index of the first token in the expression.
+    * 
+    * - int end: the index of the last token in the expression.
     * 
     * Returns
     * -------
-    * Whether or not the expression is a macro use
+    * the struct ParseExpr* for the expression
     */
 
-    struct Token** tokens = (struct Token **)tokens_array->buffer;
+    struct Token** tokens  = (struct Token **)tokens_array->buffer;
+    struct ParseExpr* expr = malloc(sizeof(struct ParseExpr));
+    int index = start;
+
+    malloc_error(expr, PARSE_GENERAL_EXPRESSION_ALLOC_EXPR);
+
+    if (tokens[start]->token_type == T_OPEN_BRKT) {
+        if (traverse_block(tokens_array, start, end, T_OPEN_BRKT, T_CLOSE_BRKT) == end) {
+            free(expr);
+            return parse_general_expression(tokens_array, prev, start + 1, end - 1);
+        }
+    } else if (tokens[start]->token_type == T_OPEN_SQ_BRKT) {
+        if (traverse_block(tokens_array, start, end, T_OPEN_SQ_BRKT, T_CLOSE_SQ_BRKT) == end) {
+            expr->type = PET_LIST_INDEX;
+            expr->expression.list_index = (struct ListIndex) {
+                //TODO: implement direct list indexing of a complex expression
+                // e.g. function_name()[0] 
+            };
+
+            return expr;
+        }
+    }
+
+    if (start == end) {
+        switch (tokens[start]->token_type) {
+            case T_NAME:
+            case T_B2NUM:
+            case T_B10NUM:
+            case T_B16NUM:
+            case T_FLOAT:
+                expr->type = PET_ATOMIC;
+                expr->expression.atom = tokens[start];
+
+                return expr;
+        
+            default:
+                error_message("Unexpected isolated token in expression.\n");
+                error_println(tokens[start]->line_no, tokens[start]->col_no);
+                exit(-SYNTAX_ERROR);
+        }
+    } else if (compound_boolean_expression(tokens_array, expr, start, end)) {
+        return expr;
+    } else if (compound_math_expression(tokens_array, expr, start, end)) {
+        return expr;
+    }
+
+    // Look for attribute resolution - if one is found, the function returns so in
+    // the rest of the code we know there's no attribute resolution.
+    while (index >= end) {
+        if (tokens[index]->token_type == T_ARROW || tokens[index]->token_type == T_FULL_STOP) {
+            expr->type = PET_ATTR_RESOLUTION;
+
+            expr->expression.at_res.is_pointer  = tokens[index]->token_type == T_ARROW;
+
+            expr->expression.at_res.parent_attr = parse_general_expression(
+                tokens_array, prev, start, index - 1
+            );
+
+            expr->expression.at_res.child_attr  = parse_general_expression(
+                tokens_array, expr->expression.at_res.parent_attr, index + 1, end
+            );
+
+            return expr;
+        } else if (tokens[index]->token_type == T_OPEN_BRKT
+          || tokens[index]->token_type == T_OPEN_SQ_BRKT) {
+            index = traverse_block(
+                tokens_array, index, end, tokens[index]->token_type,
+                (tokens[index]->token_type == T_OPEN_BRKT) ? T_CLOSE_BRKT : T_CLOSE_SQ_BRKT
+            );
+
+            if (index == -1) {
+                error_message("Unmatched brackets in expression.\n");
+                error_println(tokens[start]->line_no, tokens[start]->col_no);
+                exit(-SYNTAX_ERROR);
+            }
+        }
+
+        index += 1;
+    }
+
+    // Potentially find function call
+    if (parse_function_call(tokens_array, expr, prev, start, end)) {
+        return expr;
+    } else if (parse_macro_use(tokens_array, expr, start, end)) {
+        return expr;
+    } else if (parse_list_index(tokens_array, expr, start, end)) {
+        return expr;
+    } else {
+        error_message("Totally unrecognised syntax in expression between '");
+        fprint_slice(
+            stderr, program_source_buffer, tokens[start]->start_i, tokens[start]->end_i
+        );
+        fprintf(stderr, "' and '");
+        fprint_slice(
+            stderr, program_source_buffer, tokens[end]->start_i, tokens[end]->end_i
+        );
+        fprintf(stderr, "'.\n");
+
+        error_println(tokens[start]->line_no, tokens[start]->col_no);
+        exit(-SYNTAX_ERROR);
+    }
 }
