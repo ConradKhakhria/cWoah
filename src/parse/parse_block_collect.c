@@ -488,6 +488,80 @@ struct WModuleImport* collect_block_import(Array tokens_array, int* index)
     return retimport;
 }
 
+struct WModuleExport* collect_block_export(Array tokens_array, int* index)
+{
+   /* Creates a struct WModuleExport* for a module export declaration.
+    *
+    * Parameters
+    * ----------
+    * - Array tokens_array: the tokens containing the export declaration.
+    * 
+    * - int* index: the index of the T_MODULE token.
+    * 
+    * Modifies
+    * --------
+    * int* index goes to the next top-level block.
+    */
+
+    struct WModuleExport* ret_export = malloc(sizeof(struct WModuleExport));
+    struct Token** tokens            = (struct Token **)tokens_array->buffer;
+
+    malloc_error(ret_export, COLLECT_BLOCK_EXPORT_RET_EXPORT);
+
+    if (tokens[*index + 1]->token_type == T_NAME) {
+        ret_export->module_name = tokens[*index + 1];
+        *index += 2;
+    } else {
+        error_message("Expected module name after 'module' keyword.\n");
+        error_println(tokens[*index + 1]->line_no, tokens[*index + 1]->col_no);
+        exit(-SYNTAX_ERROR);
+    }
+
+    if (tokens[*index]->token_type == T_OPEN_BRKT) {
+        *index += 1;
+    } else {
+        error_message("Expected list of values to export after 'module' keyword.\n");
+        error_println(tokens[*index + 1]->line_no, tokens[*index + 1]->col_no);
+        exit(-SYNTAX_ERROR);
+    }
+
+    Array exported_values = make_array();
+
+    // Lands on a new values each time
+    while (true) {
+        if (tokens[*index]->token_type == T_NAME) {
+            array_add(exported_values, &tokens[*index]);
+        } else {
+            error_message("Exported name in module declaration.\n");
+            error_println(tokens[*index]->line_no, tokens[*index]->col_no);
+            exit(-SYNTAX_ERROR);
+        }
+
+        if (tokens[*index + 1]->token_type == T_COMMA) {
+            *index += 2;
+        } else if (tokens[*index + 1]->token_type == T_CLOSE_BRKT) {
+            break;
+        } else {
+            error_message(
+                "Unexpected token in module declaration"
+                "(expected comma or close parenthesis).\n"
+            );
+
+            error_println(tokens[*index + 1]->line_no, tokens[*index + 1]->col_no);
+            exit(-SYNTAX_ERROR);
+        }
+    }
+
+    *index += 2;
+
+    ret_export->export_names = exported_values->buffer;
+    ret_export->export_count = exported_values->index;
+
+    free(exported_values);
+
+    return ret_export;
+}
+
 struct WGlobals* collect_block_globals(Array tokens_array, int* index)
 {
    /* Creates a struct WGlobals* for a declaration of global variables.
@@ -502,6 +576,7 @@ struct WGlobals* collect_block_globals(Array tokens_array, int* index)
     * --------
     * int* index goes to the next top-level block.
     */
+
     struct WGlobals* ret_globals = malloc(sizeof(struct WGlobals));
     struct Token** tokens        = (struct Token **)tokens_array->buffer;
 
@@ -599,6 +674,7 @@ int collect_blocks(Array tokens_array, Array* blocks)
     * -------
     * 0 if successful, an error code if any (non-fatal) errors occur
     */
+
     struct Token** tokens = (struct Token **)tokens_array->buffer;
     int index  = 0;
 
@@ -627,6 +703,16 @@ int collect_blocks(Array tokens_array, Array* blocks)
             case T_USE:
                 array_add(blocks[3], collect_block_import(tokens_array, &index));
                 break;
+
+            case T_MODULE:
+                if (blocks[4]->index > 0) {
+                    error_message("Cannot declare multiple modules from the same file.\n");
+                    error_println(tokens[index]->line_no, tokens[index]->col_no);
+                    exit(-SYNTAX_ERROR);
+                } else {
+                    array_add(blocks[4], collect_block_export(tokens_array, &index));
+                    break;
+                }
 
             case T_GLOBALS:
                 if (blocks[5]->index > 0) {
