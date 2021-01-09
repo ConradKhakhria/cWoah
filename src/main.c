@@ -20,6 +20,8 @@
 #include "parse/parse_block_collect.h"
 #include "parse/parse_type.h"
 
+#define TEST_PARSER
+
 char* program_source_buffer;
 char* filename;
 
@@ -60,6 +62,8 @@ int get_file_contents()
         program_source_buffer[i++] = c;
     }
 
+    program_source_buffer[i] = '\n';
+
     fclose(fp);
 
     return i;
@@ -80,6 +84,20 @@ int main(int argc, char* argv[]) {
 
     int psb_len  = get_file_contents();
     Array tokens = generate_tokens(program_source_buffer, psb_len);
+
+#ifdef TEST_PARSER
+
+    struct ParseExpr* expr = parse_general_expression(
+        tokens, NULL, 0, tokens->index - 1
+    );
+
+    fprint_parse_expression(stdout, expr, program_source_buffer);
+    printf("\n");
+
+    exit(0);
+
+#endif
+
 
     // Blocks defined in the file and in imports. Modified by collect_blocks()
     // defined in /src/parse/parse.c
