@@ -162,32 +162,39 @@ struct ParseExpr {
 /* Statements */
 
 struct VarDeclare {
-    struct Token* var_name; /* The name of the declared variable */
-    struct WType* var_type; /* The type of the declared variable */
-    void* var_definition;   /* The variable's value (NULL if not assigned) */
+    struct Token* var_name;  /* The name of the declared variable. */
+    struct WType* var_type;  /* The type of the declared variable. */
+    struct ParseExpr* value; /* The variable's value (NULL if not assigned). */
 };
 
 struct VarAssign {
-    struct Token* var_name; /* The name of the variable being assigned. */
-    void* var_new_value;    /* The variable's new value. */
+    struct Token* var_name;  /* The name of the variable being assigned. */
+    struct ParseExpr* value; /* The variable's new value. */
 };
 
-struct IfStatement {
-    uint_fast32_t       type; /* Whether it's "if", "elif" or "else" */
-    struct BoolExpr*    cond; /* The boolean conditional statement */
-    struct WParseExpr** statements; /* The statements in the if block */
+struct IfStmt {
+    uint_fast32_t       type;       /* Whether it's "if", "elif" or "else" */
+    struct ParseExpr    cond;       /* The boolean conditional statement */
+    struct WParseStmt** statements; /* The statements in the if block */
     uint_fast32_t       stmt_count; /* The number of statements */
 };
 
 struct ForLoop {
-
+    bool  is_declaration;           /* Is the initial assignment a declaration? */ 
+    void* initial_assignment;       /* The first assignment in the for loop */
+    struct ParseExpr*   cond;       /* The condition to keep iterating */
+    struct WParseStmt*  step;       /* The for loop step */
+    struct WParseStmt** statements; /* The statements inside the for loop */
+    int statement_count;            /* The number of statements */
 };
 
 struct WhileLoop {
-
+    struct ParseExpr* condition;    /* Condition for looping */
+    struct WParseStmt** statements; /* The list of statements in the while loop */
+    int statement_count;            /* The number of statements */
 };
 
-struct WParseExpr {
+struct WParseStmt {
     int expression_type;
     union {
         struct VarDeclare*  decl;
