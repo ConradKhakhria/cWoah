@@ -317,7 +317,6 @@ bool tokenise_sym(char* source, int source_len, struct LexerState* state)
             }
 
             state->token->end_i = state->index;
-            state->index       += 1;
 
             break;
 
