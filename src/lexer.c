@@ -282,7 +282,7 @@ bool tokenise_sym(char* source, int source_len, struct LexerState* state)
         match_sym(';',  T_SEMICOLON);
         match_sym('&',  T_AMPERSAND);
         match_sym('@',  T_AT_SYM);
-        match_sym('%',  T_PERCENT);
+        match_sym(37,   T_PERCENT);
 
         case '"':
             state->token->token_type = T_DBL_QUOT_STRING;
