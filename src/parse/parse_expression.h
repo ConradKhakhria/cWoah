@@ -12,6 +12,8 @@
 #define RND 0
 #define SQU 1
 
+bool parse_atomic_expression(Array tokens_array, struct ParseExpr* expr, int start, int end);
+
 bool compound_expression(Array tokens_array, int* operators, int operator_count,
                          struct ParseExpr* expr, int start, int end);
 
