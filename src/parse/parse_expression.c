@@ -19,7 +19,8 @@ bool compound_expression(Array tokens_array, int* operators, int operator_count,
                 bracket_depths[SQU] += 1;
             } else if (tokens[i]->token_type == T_CLOSE_SQ_BRKT) {
                 bracket_depths[SQU] -= 1;
-            } else if (tokens[i]->token_type == operators[op]) {
+            } else if (tokens[i]->token_type == operators[op]
+              && bracket_depths[0] == 0 && bracket_depths[1] == 0) {
                 expr->type  = (operators[0] == T_OR) ? PET_COMPOUND_BOOLEAN : PET_COMPOUND_ARITHMETIC;
                 expr->value = operators[op];
                 expr->expression.derivs = malloc(sizeof(struct BoolExpr *) * 2);
@@ -155,7 +156,12 @@ bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
         };
     }
 
-    malloc_error(expr->expression.call.argument_exprs, PARSE_FUNCTION_CALL_ARGUMENT_EXPRS);
+    // i.e. no arguments
+    if (start + 2 == end) {
+        expr->expression.call.argument_count = 0;
+
+        return expr;
+    }
 
     Array arguments = make_array();
 
@@ -163,13 +169,13 @@ bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
     while (true) {
         // Finds the last token of the argument
         while (true) {
-            if (argument_end >= end) {
+            if (argument_end > end) {
                 error_message("Unclosed arguments in function call or weird syntax.\n");
                 error_println(tokens[argument_start]->line_no, tokens[argument_start]->col_no);
                 exit(-SYNTAX_ERROR);
             } else if (tokens[argument_end]->token_type == T_OPEN_BRKT) {
                 argument_end = traverse_block(
-                    tokens_array, argument_end, end + 1, T_OPEN_BRKT, T_CLOSE_BRKT
+                    tokens_array, argument_end + 1, end + 1, T_OPEN_BRKT, T_CLOSE_BRKT
                 );
 
                 if (argument_end == -1) {
@@ -179,7 +185,7 @@ bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
                 }
             } else if (tokens[argument_end]->token_type == T_OPEN_SQ_BRKT) {
                 argument_end = traverse_block(
-                    tokens_array, argument_end, end + 1, T_OPEN_SQ_BRKT, T_CLOSE_SQ_BRKT
+                    tokens_array, argument_end + 1, end + 1, T_OPEN_SQ_BRKT, T_CLOSE_SQ_BRKT
                 );
 
                 if (argument_end == -1) {
@@ -207,7 +213,7 @@ bool parse_function_call(Array tokens_array, struct ParseExpr* expr,
         }
     }
 
-    expr->expression.call.argument_count = arguments->buffer;
+    expr->expression.call.argument_exprs = (struct ParseExpr **)arguments->buffer;
     expr->expression.call.argument_count = arguments->index;
 
     free(arguments);
@@ -336,16 +342,28 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
     * the struct ParseExpr* for the expression
     */
 
+#ifdef DEBUG
+
+    printf("start = %d, end = %d\n", start, end);
+
+#endif
+
     struct Token** tokens  = (struct Token **)tokens_array->buffer;
     struct ParseExpr* expr = malloc(sizeof(struct ParseExpr));
     int index = start;
 
     malloc_error(expr, PARSE_GENERAL_EXPRESSION_ALLOC_EXPR);
 
-    if (tokens[start]->token_type == T_OPEN_BRKT) {
-        if (traverse_block(tokens_array, start, end, T_OPEN_BRKT, T_CLOSE_BRKT) == end) {
+    if (tokens[start]->token_type == T_OPEN_BRKT && tokens[end]->token_type == T_CLOSE_BRKT) {
+        int trav = traverse_block(tokens_array, start + 1, end + 1, T_OPEN_BRKT, T_CLOSE_BRKT);
+
+        if (trav == end) {
             free(expr);
             return parse_general_expression(tokens_array, prev, start + 1, end - 1);
+        } else if (trav == -1) {
+            error_message("Unclosed brackets in expression.\n");
+            error_println(tokens[start]->line_no, tokens[start]->col_no);
+            exit(-SYNTAX_ERROR);
         }
     } else if (tokens[start]->token_type == T_OPEN_SQ_BRKT) {
         if (traverse_block(tokens_array, start, end, T_OPEN_SQ_BRKT, T_CLOSE_SQ_BRKT) == end) {
@@ -366,13 +384,17 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
             case T_B10NUM:
             case T_B16NUM:
             case T_FLOAT:
+            case T_SGL_QUOT_STRING:
+            case T_DBL_QUOT_STRING:
                 expr->type = PET_ATOMIC;
                 expr->expression.atom = tokens[start];
 
                 return expr;
         
             default:
-                error_message("Unexpected isolated token in expression.\n");
+                error_message("Unexpected isolated token in expression: '");
+                fprint_token(stderr, tokens[start], program_source_buffer);
+                fprintf(stderr, "'.\n");
                 error_println(tokens[start]->line_no, tokens[start]->col_no);
                 exit(-SYNTAX_ERROR);
         }
@@ -384,7 +406,7 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
 
     // Look for attribute resolution - if one is found, the function returns so in
     // the rest of the code we know there's no attribute resolution.
-    while (index >= end) {
+    while (index < end) {
         if (tokens[index]->token_type == T_ARROW || tokens[index]->token_type == T_FULL_STOP) {
             expr->type = PET_ATTR_RESOLUTION;
 
@@ -402,7 +424,7 @@ struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr*
         } else if (tokens[index]->token_type == T_OPEN_BRKT
           || tokens[index]->token_type == T_OPEN_SQ_BRKT) {
             index = traverse_block(
-                tokens_array, index, end, tokens[index]->token_type,
+                tokens_array, index + 1, end + 1, tokens[index]->token_type,
                 (tokens[index]->token_type == T_OPEN_BRKT) ? T_CLOSE_BRKT : T_CLOSE_SQ_BRKT
             );
 
