@@ -26,6 +26,4 @@ bool parse_list_index(Array tokens_array, struct ParseExpr* expr, int start, int
 
 bool parse_macro_use(Array tokens_array, struct ParseExpr* expr, int start, int end);
 
-bool parse_attribute_resolution(Array tokens_array, struct ParseExpr* expr, int start, int end);
-
-struct ParseExpr* parse_general_expression(Array tokens_array, int start, int end);
+struct ParseExpr* parse_general_expression(Array tokens_array, struct ParseExpr* prev, int start, int end);
