@@ -75,18 +75,6 @@ struct WType {
 
 /* Top level parsing structures */
 
-struct WTypedef {
-    struct Token* typedef_name;     /* The name of the defined type. */
-    void*         type_definition;  /* The contents of the defined type. */
-};
-
-struct WModuleImport {
-    struct Token*  import_name;      /* The name of the imported module. */
-    struct Token** imported_fields;  /* What specifically has been imported. */
-    uint_fast32_t  import_type;      /* How the module has been imported. */
-    uint_fast32_t  fields_count;     /* The number of fields */
-};
-
 struct WFunction {
     struct Token*       function_name; /* The token for the function's name. */
     struct WTypedef*    parent_type;   /* For if the function is a method (NULL if not) */
@@ -103,6 +91,24 @@ struct WStruct {
     struct Token** field_names; /* Names of the struct's fields. */
     struct WType** field_types; /* Types of the struct's fields. */
     uint_fast32_t  field_count; /* The number of fields the struct has. */
+};
+
+struct WTypedef {
+    struct Token* typedef_name;     /* The name of the defined type. */
+    void*         type_definition;  /* The contents of the defined type. */
+};
+
+struct WModuleImport {
+    struct Token*  import_name;      /* The name of the imported module. */
+    struct Token** imported_fields;  /* What specifically has been imported. */
+    uint_fast32_t  import_type;      /* How the module has been imported. */
+    uint_fast32_t  fields_count;     /* The number of fields */
+};
+
+struct WModuleExport {
+    struct Token*  module_name;  /* The name of the exported module */
+    struct Token** export_names; /* The functions to be exported */
+    uint_fast32_t  export_count; /* The number of exported functions */
 };
 
 struct WGlobals {
@@ -136,8 +142,8 @@ struct MacroUse {
 // E.g. library.function(..), struct_name.field_name, type.method(..) etc
 struct AttrResolution {
     bool is_pointer;                /* foo.bar or foo->bar */
-    struct ParseExpr* parent_name;  /* [parent_name].something */
-    struct Token attribute_name;    /* something.[attribute_name] */
+    struct ParseExpr* parent_attr;  /* [parent_name].something */
+    struct ParseExpr* child_attr;   /* something.[attribute_name] */
 };
 
 struct ParseExpr {
