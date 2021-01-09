@@ -554,7 +554,7 @@ struct WModuleExport* collect_block_export(Array tokens_array, int* index)
 
     *index += 2;
 
-    ret_export->export_names = exported_values->buffer;
+    ret_export->export_names = (struct Token **)exported_values->buffer;
     ret_export->export_count = exported_values->index;
 
     free(exported_values);
