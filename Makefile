@@ -11,7 +11,7 @@ INCL  = datastructures/datastructures.c \
         lexer.c                         \
         misc.c                          \
         woah_error.c
-			
+
 MAIN=main.c
 TARGET=woah
 FLAGS=-lm -Wall
