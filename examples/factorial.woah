@@ -14,6 +14,7 @@ fn factorial(n: T) -> T {
 // Polymorphism is needed here as the Integer type is an unlimited-precision
 // integer defined as a struct (like with typedefs in C), meaning that normal
 // arithmetic operators won't work
+
 fn factorial(n: Integer) -> Integer {
     ret: T = heap![].init(1);   // As we're returning value ret, we want to allocate it on the heap
 
