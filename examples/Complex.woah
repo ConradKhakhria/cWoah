@@ -18,7 +18,6 @@ type Complex<T> = &struct Complex<T>;
 // which can have methods, which are useful for scoping as well as for generally
 // giving the language neater syntax. They are defined as follows:
 
-
 // Every type must have an .init() method to initialise all its values
 
 fn Complex<T>.init(r: T, i: T) -> Complex<T> {
